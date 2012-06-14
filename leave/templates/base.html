@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  {% load staticfiles %}
+    <link rel="stylesheet" href="{%static "style.css" %}" />
+    <title>{% block title %}System urlopowy mikran{% endblock %}</title>
+</head>
+
+<body>
+    <div id="topbar" class="solid">
+        {% block topbar %}
+	<h1>Witamy w sytemie urlopowym Mikran</h1>
+        {% endblock %}
+    </div>
+    <div id="left" class="solid float" style="background-color:#FFD700;width:200px">
+        {% block left %}
+	123
+        {% endblock %}
+    </div>
+    <div id="content" class="solid float">
+        {% block content %}{% endblock %}
+    </div>
+    <div id="bottom" style="border:1px solid; clear:both">
+        {% block bottom %}bottom{% endblock %}
+    </div>
+</body>
+</html>
