@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block left %}
+
+<ul>
+{% for user in users %}
+<li>{{user}}</li>
+{% endfor %}
+</ul>
+
+{% endblock %}
+{% block content %}
+
+{{user_days}}
+{{cal}}
+
+{% endblock %}
