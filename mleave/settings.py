@@ -6,6 +6,8 @@ TEMPLATE_DEBUG = DEBUG
 DEFAULT_CHARSET = 'utf8'
 AUTH_PROFILE_MODULE='leave.UserProfile'
 
+INTERNAL_IPS = ['127.0.0.1']
+
 ADMINS = (
     ('Tomasz Zdanowski', 'tomasz@mikran.pl'),
 )
@@ -34,7 +36,7 @@ TIME_ZONE = 'Poland'
 
 # Language code for this installation. All choices can be found here:
 # http://www.i18nguy.com/unicode/language-identifiers.html
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'pl'
 
 SITE_ID = 1
 
@@ -100,8 +102,16 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
     # Uncomment the next line for simple clickjacking protection:
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
+)
+
+DEBUG_TOOLBAR_PANELS = (
+    'debug_toolbar.panels.version.VersionDebugPanel',
+    'debug_toolbar.panels.sql.SQLDebugPanel',
+    'debug_toolbar.panels.timer.TimerDebugPanel',
+    'debug_toolbar.panels.headers.HeaderDebugPanel',
 )
 
 ROOT_URLCONF = 'mleave.urls'
@@ -124,6 +134,7 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'leave',
+    'debug_toolbar',
     # Uncomment the next line to enable the admin:
     'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
