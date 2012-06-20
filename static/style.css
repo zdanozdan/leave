@@ -2,6 +2,6 @@
 div.float { float:left}
 div.clear { clear:both}
 
-.planned { background-color:yellow}
 .accepted {background-color:green}
+.planned { background-color:yellow}
 .rejected {background-color:red}
