@@ -19,6 +19,6 @@ def showUser(request,user_id):
     selected = User.objects.get(pk=user_id)
     user_days = Day.objects.filter(user_id__exact=user_id)
 
-    cal = MikranCalendar(user_days).formatyear(2012,3)
+    cal = MikranCalendar(user_days).formatyear(2012,4)
 
     return render_to_response('show_user.html',{'users': users,'selected':selected,'user_days':user_days,'cal':mark_safe(cal)})
