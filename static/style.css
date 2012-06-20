@@ -1,3 +1,7 @@
 .solid { border:1px solid;margin:10px }
 div.float { float:left}
 div.clear { clear:both}
+
+.planned { background-color:yellow}
+.accepted {background-color:green}
+.rejected {background-color:red}
