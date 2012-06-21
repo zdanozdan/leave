@@ -21,7 +21,7 @@ def index(request):
     users = User.objects.all()
     return render_to_response('index.html',{'users': users})
 
-def showUser(request,user_id):
+def show_user(request,user_id):
 
     users = User.objects.all()
     selected = User.objects.get(pk=user_id)
@@ -31,7 +31,7 @@ def showUser(request,user_id):
 
     return render_to_response('show_user.html',{'users': users,'selected':selected,'user_days':user_days,'cal':mark_safe(cal)})
 
-def planDays(request,user_id):
+def plan_days(request,user_id):
     users = User.objects.all()
     selected = User.objects.get(pk=user_id)
     user_days = Day.objects.filter(user_id__exact=user_id)
@@ -74,6 +74,7 @@ def planDays(request,user_id):
             # ...
             #return HttpResponseRedirect('/leave/planned/'+str(selected.id)+'/user/') # Redirect after POST
             #return HttpResponseRedirect(reverse('leave.views.planned_days',args=(selected.id,)))
+            return HttpResponseRedirect(reverse('leave.views.showUser',args=(selected.id,)))
     else:
         form = LeaveForm()
 
