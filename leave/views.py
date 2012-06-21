@@ -25,7 +25,7 @@ def showUser(request,user_id):
 
     users = User.objects.all()
     selected = User.objects.get(pk=user_id)
-    user_days = Day.objects.filter(user_id__exact=user_id)
+    user_days = Day.objects.select_related().filter(user_id__exact=user_id)
 
     cal = MikranCalendar(user_days).formatyear(2012,4)
 
@@ -39,8 +39,6 @@ def planDays(request,user_id):
     if request.method == 'POST': # If the form has been submitted...
         form = LeaveForm(request.POST) # A form bound to the POST data
         if form.is_valid(): # All validation rules pass
-            logging.debug(request.POST)
-            logging.debug(request.POST['first_day_month'])
 
             start_date = datetime.date(int(request.POST['first_day_year']),
                                            int(request.POST['first_day_month']),
@@ -50,29 +48,25 @@ def planDays(request,user_id):
                                          int(request.POST['last_day_month']),
                                          int(request.POST['last_day_day']))
 
-            logging.debug(start_date)
-            logging.debug(end_date)
-            if(start_date < end_date):
-                logging.debug("OK")
-
             cal = Calendar()
 
             start_month = int(request.POST['first_day_month'])
             end_month = int(request.POST['last_day_month'])
 
-#            for month in range(start_month,end_month):
-            for day in cal.itermonthdates(int(request.POST['first_day_year']),
-                                          month):
-                logging.debug(str(start_date) + ":" + str(day))
-                if day >= start_date:
-                    logging.debug(str(start_date) + ":!!!!!!!!!!!!!!!!!!!!!" + str(day))
-                        #                        if day <= end_date:
-    
+            for month in range(start_month,end_month+1):
+                for day in cal.itermonthdates(int(request.POST['first_day_year']),
+                                              month):
+                    if day >= start_date and day <= end_date:
+                            #
+                            # create day object and save in db
+                            #
+                            day = Day(user_id=selected.id,status_id=1,leave_date=day)
+                            day.save()
+                            logging.debug("Zapisano dzien: " + str(day))
+   
+                    
+            logging.debug('koniec')
 
-            d = Day(user_id=1,status_id=1,leave_date=start_date)
-            d.save()
-            d = Day(user_id=1,status_id=1,leave_date=end_date)
-            d.save()
             #selected_choice = p.choice_set.get(pk=request.POST['choice'])
 
             #logging.debug(reverse('leave.views.planned_days',args=(1,)))
