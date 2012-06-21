@@ -74,7 +74,7 @@ def plan_days(request,user_id):
             # ...
             #return HttpResponseRedirect('/leave/planned/'+str(selected.id)+'/user/') # Redirect after POST
             #return HttpResponseRedirect(reverse('leave.views.planned_days',args=(selected.id,)))
-            return HttpResponseRedirect(reverse('leave.views.showUser',args=(selected.id,)))
+            return HttpResponseRedirect(reverse('leave.views.show_user',args=(selected.id,)))
     else:
         form = LeaveForm()
 
