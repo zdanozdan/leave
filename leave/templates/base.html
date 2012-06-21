@@ -18,24 +18,21 @@
 	<h1>Witamy w sytemie urlopowym Mikran</h1>
         {% endblock %}
     </div>
+    {% if messages %}
+    <div id="messages">
+      <ul class="messages messagelist">
+	{% for message in messages %}
+	<li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+	{% endfor %}
+      </ul>
+    </div>
+      {% endif %}
     <div id="left" class="solid float" style="background-color:#FFD700;width:200px">
         {% block left %}
 	123
         {% endblock %}
     </div>
     <div id="content" class="solid float">
-    <div id="messages" class="error">
-      MESSAGES: {{ messages }}
-    {% if messages %}
-      MESSAGES 2
-      <ul class="messages messagelist">
-	{% for message in messages %}
-	{{ message }}
-	<li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
-	{% endfor %}
-      </ul>
-      {% endif %}
-    </div>
         {% block content %}{% endblock %}
     </div>
     <div id="bottom" style="border:1px solid; clear:both">
