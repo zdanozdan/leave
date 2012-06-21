@@ -8,18 +8,22 @@
 
 <ul>
 {% for user in users %}
-<li><a href="/leave/show/{{user.id}}/user">{{user}}</a></li>
+<li><a href="{% url show_user user.id %}">{{user}}</a></li>
 {% endfor %}
 </ul>
 
 <ul>
-  <li><a href="/leave/plan/{{selected.id}}/user">Planuj urlop</a></li>
+  <li><a href="{% url plan_days selected.id %}">Planuj urlop</a></li>
   <li>Zgłoś obecność</li>
 </ul>
 
 {% endblock %}
 {% block content %}
 
-{{cal}}
+<form action="{% url plan_days selected.id %}" method="post">{% csrf_token %}
+{{ form.as_p }}
+<input type="submit" value="Submit" />
+</form>
 
 {% endblock %}
+
