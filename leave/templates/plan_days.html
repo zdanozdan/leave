@@ -21,9 +21,15 @@
 {% block content %}
 
 <form action="{% url plan_days selected.id %}" method="post">{% csrf_token %}
-{{ form.as_p }}
-<input type="submit" value="Submit" />
+<p id="header">Planowanie dni wolnych: zaznacz początek i koniec urlopu</p>
+<ul>
+{{ form.as_ul }}
+<input type="submit"/>
+</ul>
 </form>
+
+<p id="header">Kalendarz urlopowy dla {{selected.first_name}} {{selected.last_name}}</p>
+{{cal}}
 
 {% endblock %}
 

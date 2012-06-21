@@ -2,6 +2,10 @@
 
 {% block topbar %}
 <h1>Zakładka dla {{selected.first_name}} {{selected.last_name}}</h1>
+<p>
+Dni wykorzystane : xxxx
+Dni przysługujące :yyyy
+</p>
 {% endblock %}
 
 {% block left %}
@@ -20,6 +24,7 @@
 {% endblock %}
 {% block content %}
 
+<p id="header">Kalendarz urlopowy dla {{selected.first_name}} {{selected.last_name}}</p>
 {{cal}}
 
 {% endblock %}
