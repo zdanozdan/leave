@@ -11,8 +11,6 @@ class MikranCalendar(LocaleHTMLCalendar):
 
     def __init__(self, user_days):
         self.group_by_day = self.group_by_days(user_days)
-        logging.debug(self.group_by_day)
-        
         super(MikranCalendar, self).__init__()
 
     def formatday(self, day, weekday):
