@@ -55,6 +55,8 @@ def plan_days(request,user_id):
             start_month = int(request.POST['first_day_month'])
             end_month = int(request.POST['last_day_month'])
 
+            logging.debug(form.isCancelled(request.POST['status']));
+
             for month in range(start_month,end_month+1):
                 for day in current.itermonthdates(int(request.POST['first_day_year']),
                                               month):
@@ -70,7 +72,7 @@ def plan_days(request,user_id):
             messages.add_message(request,messages.INFO, 'Zaplanowano urlop od %s do %s' %(start_date,end_date))
 
             return render_to_response('show_user.html',{'users': users,'selected':selected,'user_days':user_days,'cal':mark_safe(cal)})
-            return HttpResponseRedirect(reverse('leave.views.show_user',args=(selected.id,)))
+            #return HttpResponseRedirect(reverse('leave.views.show_user',args=(selected.id,)))
     else:
         form = LeaveForm()
 
