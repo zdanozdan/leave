@@ -26,5 +26,8 @@ class Day(models.Model):
     status = models.ForeignKey(Status)
     user = models.ForeignKey(User)
 
+    class Meta:
+        unique_together = ("leave_date", "user"),
+
     def __unicode__(self):
         return _date(self.leave_date, "D d b Y")

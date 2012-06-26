@@ -57,16 +57,19 @@ def plan_days(request,user_id):
 
             logging.debug(form.isCancelled(request.POST['status']));
 
-            for month in range(start_month,end_month+1):
-                for day in current.itermonthdates(int(request.POST['first_day_year']),
-                                              month):
-                    if day >= start_date and day <= end_date:
-                            #
+            if form.isCancelled(request.POST['status']):
+                Day.objects.filter(user_id=selected.id,status_id=1).filter(leave_date__gte = start_date).filter(leave_date__lte = end_date).delete()
+            else:
+                days = []
+                for month in range(start_month,end_month+1):
+                    for day in current.itermonthdates(int(request.POST['first_day_year']),
+                                                      month):
+                        if day >= start_date and day <= end_date:
                             # create day object and save in db
-                            #
-                            day = Day(user_id=selected.id,status_id=1,leave_date=day)
-                            day.save()
-                    
+                            days.append(Day(user_id=selected.id,status_id=1,leave_date=day))
+                            #day = [day,day]
+                            #day.save()
+                Day.objects.bulk_create(days)
                             
             #display OK message for the user
             messages.add_message(request,messages.INFO, 'Zaplanowano urlop od %s do %s' %(start_date,end_date))
