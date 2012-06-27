@@ -32,9 +32,15 @@ class LeaveForm(forms.Form):
         # Always return the full collection of cleaned data.
         return cleaned_data
 
+    def translateChoice(self,choice):
+        return [i[1] for i in STATUS_CHOICES if choice in i].pop()
+
+    def isPlanned(self,choice):
+        return "PLANNED" in choice
+    
+    def isRejected(self,choice):
+        return "REJECTED" in choice
+
     def isCancelled(self,choice):
-        if choice == 'CANCELLED' : 
-            return True
-        else:
-            return False;
+        return "CANCELLED" in choice
 

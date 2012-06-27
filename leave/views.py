@@ -11,6 +11,7 @@ from django.template import RequestContext
 from django.core.urlresolvers import reverse
 
 from leave.models import Day
+from leave.models import Status
 from leave.forms import LeaveForm
 from leave.addon import MikranCalendar
 
@@ -55,21 +56,32 @@ def plan_days(request,user_id):
             start_month = int(request.POST['first_day_month'])
             end_month = int(request.POST['last_day_month'])
 
-            logging.debug(form.isCancelled(request.POST['status']));
+            status_obj = Status.objects.get(status=form.translateChoice(request.POST['status']));
+
+            #rejected
+            #if form.isRejected(request.POST['status']):
+            #    logging.debug('rejected');
 
             if form.isCancelled(request.POST['status']):
-                Day.objects.filter(user_id=selected.id,status_id=1).filter(leave_date__gte = start_date).filter(leave_date__lte = end_date).delete()
-            else:
+                Day.objects.filter(user_id=selected.id).filter(leave_date__gte = start_date).filter(leave_date__lte = end_date).delete()
+
+            if form.isPlanned(request.POST['status']):
                 days = []
                 for month in range(start_month,end_month+1):
                     for day in current.itermonthdates(int(request.POST['first_day_year']),
                                                       month):
+                        #logging.debug(day)
                         if day >= start_date and day <= end_date:
                             # create day object and save in db
-                            days.append(Day(user_id=selected.id,status_id=1,leave_date=day))
-                            #day = [day,day]
-                            #day.save()
+                            days.append(Day(user_id=selected.id,status_id=status_obj.id,leave_date=day))
+
+                #bulk create days
                 Day.objects.bulk_create(days)
+
+            else:
+                Day.objects.filter(user_id=selected.id,
+                                   leave_date__gte = start_date,
+                                   leave_date__lte = end_date).update(status=status_obj.id)
                             
             #display OK message for the user
             messages.add_message(request,messages.INFO, 'Zaplanowano urlop od %s do %s' %(start_date,end_date))
