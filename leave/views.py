@@ -40,7 +40,7 @@ def plan_days(request,user_id):
     cal = MikranCalendar(user_days).formatyear(2012,4)
 
     if request.method == 'POST': # If the form has been submitted...
-        form = LeaveForm(request.POST) # A form bound to the POST data
+        form = LeaveForm(dict(request.POST.items() + {'user_id':selected.id}.items())) # A form bound to the POST data
         if form.is_valid(): # All validation rules pass
 
             start_date = datetime.date(int(request.POST['first_day_year']),
@@ -58,10 +58,6 @@ def plan_days(request,user_id):
 
             status_obj = Status.objects.get(status=form.translateChoice(request.POST['status']));
 
-            #rejected
-            #if form.isRejected(request.POST['status']):
-            #    logging.debug('rejected');
-
             if form.isCancelled(request.POST['status']):
                 Day.objects.filter(user_id=selected.id).filter(leave_date__gte = start_date).filter(leave_date__lte = end_date).delete()
 
@@ -70,13 +66,12 @@ def plan_days(request,user_id):
                 for month in range(start_month,end_month+1):
                     for day in current.itermonthdates(int(request.POST['first_day_year']),
                                                       month):
-                        #logging.debug(day)
                         if day >= start_date and day <= end_date:
-                            # create day object and save in db
-                            days.append(Day(user_id=selected.id,status_id=status_obj.id,leave_date=day))
+                            if not day in days:
+                                days.append(day)
 
-                #bulk create days
-                Day.objects.bulk_create(days)
+                #build list of objects for bulk create
+                Day.objects.bulk_create([Day(user_id=selected.id,status_id=status_obj.id,leave_date=day) for day in days])
 
             else:
                 Day.objects.filter(user_id=selected.id,

@@ -3,6 +3,8 @@ from django import forms
 from django.forms.extras.widgets import SelectDateWidget,Select
 from django.contrib.admin import widgets                                       
 
+from leave.models import Day
+
 
 YEAR_CHOICES = ('2012', '2013')
 STATUS_CHOICES = (('PLANNED', 'Zaplanowany'),
@@ -22,12 +24,15 @@ class LeaveForm(forms.Form):
 
         start = cleaned_data.get("first_day")
         end = cleaned_data.get("last_day")
-
-        #logging.debug(cleaned_data.get("first_day") < cleaned_data.get("last_day"))
-        #logging.debug(end)
+        status = cleaned_data.get("status")
 
         if start > end:
             raise forms.ValidationError("Nie no bez przesady ! Chcesz urlop od tylu ? Data zakonczenia musi byc pozniej :-)")
+
+        if self.isPlanned(status):
+            cnt = Day.objects.filter(user_id=self.data['user_id']).filter(leave_date__gte = start).filter(leave_date__lte = end).count();
+            if cnt > 0:
+                raise forms.ValidationError("W tym terminie juz zaplanowales urlop !")
 
         # Always return the full collection of cleaned data.
         return cleaned_data
