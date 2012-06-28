@@ -5,3 +5,4 @@ div.clear { clear:both}
 .accepted {background-color:green}
 .planned { background-color:yellow}
 .rejected {background-color:red}
+.multiple {border-bottom: 3px solid red; border-right:3px solid red}

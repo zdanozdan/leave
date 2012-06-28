@@ -21,7 +21,10 @@ from leave.addon import MikranCalendar
 
 def index(request):
     users = User.objects.all()
-    return render_to_response('index.html',{'users': users})
+    user_days = Day.objects.select_related()
+    cal = MikranCalendar(user_days).formatyear(2012,4)
+
+    return render_to_response('index.html',{'users': users,'user_days':user_days,'cal':mark_safe(cal)})
 
 def show_user(request,user_id):
 
