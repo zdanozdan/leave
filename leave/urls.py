@@ -7,7 +7,11 @@ urlpatterns = patterns('leave.views',
     url(r'^show/(?P<user_id>\d+)/user/$', 'show_user', name="show_user"),
     url(r'^plan/(?P<user_id>\d+)/user/$', 'plan_days', name="plan_days"),
     url(r'^planned/(?P<user_id>\d+)/user/$', 'planned_days', name="planned_days"),
-    url(r'^pln/(?P<user_id>\d+)/user/$', login_required(direct_to_template), {'template': 'login_index.html'}),
+)
+
+urlpatterns += patterns('',
+    url(r'^accounts/login/$', 'django.contrib.auth.views.login', {'template_name': 'login.html'}),
+    url(r'^accounts/logout/$', 'django.contrib.auth.views.logout'),
 )
 
 

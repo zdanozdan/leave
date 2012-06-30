@@ -12,6 +12,8 @@ ADMINS = (
     ('Tomasz Zdanowski', 'tomasz@mikran.pl'),
 )
 
+LOGIN_URL = "/leave/accounts/login"
+
 MANAGERS = ADMINS
 
 DATABASES = {

@@ -16,6 +16,12 @@
     <div id="topbar" class="solid">
         {% block topbar %}
 	<h1>Witamy w sytemie urlopowym Mikran</h1>
+	{% if user.is_authenticated %}
+	<p>Witamy w pracy, {{ user.first_name }}.</p>
+	<a href="{% url django.contrib.auth.views.logout %}?next={%url index %}">Wyloguj się</a>
+	{% else %}
+	<p><a href="{% url django.contrib.auth.views.login %}?next={%url index %}">Zaloguj się</a></p>
+	{% endif %}
         {% endblock %}
     </div>
     <div id="left" class="solid float" style="background-color:#FFD700;width:200px">
