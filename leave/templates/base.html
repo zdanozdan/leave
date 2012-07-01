@@ -11,7 +11,7 @@
     <title>{% block title %}System urlopowy mikran{% endblock %}</title>
 </head>
 {% endblock %}
-
+{% block body %}
 <body>
     <div id="topbar" class="solid">
         {% block topbar %}
@@ -44,4 +44,5 @@
         {% block bottom %}bottom{% endblock %}
     </div>
 </body>
+{% endblock %}
 </html>

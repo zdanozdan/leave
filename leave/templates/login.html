@@ -1,31 +1,59 @@
 {% extends "base.html" %}
 
-{% block content %}
+{% block head %}
+  {% load staticfiles %}
+    <link rel="stylesheet" href="{%static "admin/css/base.css" %}" />
+    <link rel="stylesheet" href="{%static "admin/css/login.css" %}" />
+
+    <title>{% block title %}Logowanie do sytemy urlopowego Mikran{% endblock %}</title>
+{% endblock %}
+
+{% block body %}
 
 <body class="login">
-<div id="branding">
-<h1 id="site-name">ADMIN</h1>
-</div>
-{% if form.errors %}
-<p>Your username and password didn't match. Please try again.</p>
-{% endif %}
+  <!-- Container -->
+  <div id="container">
+    <!-- Header -->
+    <div id="header">
+        <div id="branding">
+          <h1 id="site-name">Logowanie do sytemu urlopowego Mikran</h1>
+        </div>               
+    </div>
+    <!-- END Header -->
+    <!-- Content -->
+    <div id="content" class="colM">        
+      <div id="content-main">
+	{% if form.non_field_errors %}
+	<ul>
+	  {{ form.non_field_errors.as_ul }}
+	</ul>
+	{% endif %}
+	<form method="post" action="{% url django.contrib.auth.views.login %}">
+	  {% csrf_token %}
 
-<form method="post" action="{% url django.contrib.auth.views.login %}">
-{% csrf_token %}
-<table>
-<tr>
-    <td>{{ form.username.label_tag }}</td>
-    <td>{{ form.username }}</td>
-</tr>
-<tr>
-    <td>{{ form.password.label_tag }}</td>
-    <td>{{ form.password }}</td>
-</tr>
-</table>
+	  <div class="form-row">
+            {{ form.username.errors }}
+            {{ form.username.label_tag }}
+	    {{ form.username }}
+	  </div>
+	  <div class="form-row">
+            {{ form.password.errors }}
+	    {{ form.password.label_tag }}
+	    {{ form.password }}
+	  </div>    
+	  <div class="submit-row">
+	    <label>&nbsp;</label><input type="submit" value="Zaloguj się" />
+	    <input type="hidden" name="next" value="{{ next }}" />
+	  </div>
+	</form>
 
-<input type="submit" value="login" />
-<input type="hidden" name="next" value="{{ next }}" />
-</form>
+        <br class="clear" />
+      </div>
+      <!-- END Content -->
+      <div id="footer"></div>
+    </div>
+    <!-- END Container -->
+  </div>
 </body>
 
 {% endblock %}
