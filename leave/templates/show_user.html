@@ -12,13 +12,13 @@ Dni przysługujące :yyyy
 
 <ul>
 {% for user in users %}
-<li><a href="/leave/show/{{user.id}}/user">{{user}}</a></li>
+<li><a href="{% url show_user user.id %}">{{user}}</a></li>
 {% endfor %}
 </ul>
 
 <ul>
-  <li><a href="/leave/plan/{{selected.id}}/user">Planuj urlop</a></li>
-  <li>Zgłoś obecność</li>
+  <li><a href="{% url plan_days selected.id %}">Planuj urlop</a></li>
+  <li><a href="{% url present user.id %}">Zgłoś obecność</a></li>
 </ul>
 
 {% endblock %}

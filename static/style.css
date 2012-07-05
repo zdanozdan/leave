@@ -5,4 +5,8 @@ div.clear { clear:both}
 .accepted {background-color:green}
 .planned { background-color:yellow}
 .rejected {background-color:red}
+.present {background-image:url(/static/check24.png); background-repeat:no-repeat}
+.sick {background-image:url(/static/sick.jpg); background-repeat:no-repeat}
 .multiple {border-bottom: 3px solid red; border-right:3px solid red}
+
+.rect {width:30px;height:20px;display:inline-block;}

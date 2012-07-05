@@ -3,7 +3,6 @@ from django.contrib.auth.models import User
 #from time import gmtime, strftime
 from django.template.defaultfilters import date as _date
 
-
 # Create your models here.
 
 # user profile keep all information we need extra.

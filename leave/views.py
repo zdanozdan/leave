@@ -1,5 +1,9 @@
+# This Python file uses the following encoding: utf-8
+
 import logging,datetime
 from calendar import Calendar
+
+from collections import defaultdict
 
 from django.http import HttpResponse, HttpResponseRedirect
 from django.utils.safestring import mark_safe
@@ -7,18 +11,19 @@ from django.shortcuts import render_to_response, get_object_or_404
 from django.contrib.auth.models import User
 from django.contrib import messages
 from django.template import RequestContext
-from django.http import Http404,Http403
-
+from django.http import Http404
+from django.shortcuts import redirect
 
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
 
-from leave.models import Day
-from leave.models import Status
-from leave.forms import LeaveForm
+from leave.models import *
+from leave.forms import *
+
 from leave.addon import MikranCalendar
 
-#from django.template.defaultfilters import slugify
+from django.http import HttpResponseRedirect
+from functools import wraps
 
 # Create your views here.
 
@@ -37,25 +42,69 @@ def show_user(request,user_id):
     selected = User.objects.get(pk=user_id)
     user_days = Day.objects.select_related().filter(user_id__exact=user_id)
 
-    cal = MikranCalendar(user_days).formatyear(2012,4)
+    cal = MikranCalendar(user_days,selected.id).formatyear(2012,4)
 
     return render_to_response('show_user.html',{'users': users,'selected':selected,'user_days':user_days,'cal':mark_safe(cal)},
                               context_instance=RequestContext(request))
 
+def single_present(request,user_id,year,month,day):
+    users = User.objects.all()
+    selected = User.objects.get(pk=user_id)
+    user_days = Day.objects.select_related().filter(user_id__exact=user_id)
+    url_day = datetime.date(int(year),int(month),int(day))
+    present_days = Day.objects.select_related().filter(leave_date = url_day)
+
+    form = SinglePresentForm(instance=Day(user_id=selected.id,status_id=Status.objects.get(status="Obecny").id,leave_date=url_day))
+
+    cal = MikranCalendar(user_days,selected.id)
+
+    if request.method == 'POST': # If the form has been submitted...
+        form = SinglePresentForm(request.POST, instance=Day(user_id=selected.id,status_id=Status.objects.get(status="Obecny").id,leave_date=url_day))
+        if form.is_valid(): # All validation rules pass
+            #display OK message for the user
+            form.save()
+            messages.add_message(request,messages.INFO, 'Zgłosiłeś obecność/chorobę w dniu : %s' %(url_day))
+            return HttpResponseRedirect(reverse('leave.views.show_user',args=(selected.id,)))
+
+    return render_to_response('present.html',{'users': users,
+                                              'selected':selected,
+                                              'user_days':user_days,
+                                              'cal':mark_safe(cal.formatyear(2012,4)),
+                                              'form':form, 
+                                              'year':year, 
+                                              'month':month, 
+                                              'day':day, 
+                                              'statuses':cal.group_days_by_statuses(present_days)
+                                              },
+                              context_instance=RequestContext(request))
+
+def present(request,user_id):
+    form = PresentForm()
+    users = User.objects.all()
+    selected = User.objects.get(pk=user_id)
+    user_days = Day.objects.select_related().filter(user_id__exact=user_id)
+
+    cal = MikranCalendar(user_days).formatyear(2012,4)
+
+    return render_to_response('present.html',{'users': users,'selected':selected,'user_days':user_days,'cal':mark_safe(cal),'form':form},
+                              context_instance=RequestContext(request))
+
+def user_allowed(funct):
+    def wrapped(request, user_id):
+        if request.user.id == int(user_id):
+            return funct(request,user_id)
+        else:
+            messages.add_message(request,messages.ERROR, 'Nie posiadasz uprawnień. Zaloguj sie na swoje konto')
+            return redirect('django.contrib.auth.views.login')
+    return wrapped
+
 @login_required
+@user_allowed
 def plan_days(request,user_id):
     users = User.objects.all()
     selected = User.objects.get(pk=user_id)
     user_days = Day.objects.select_related().filter(user_id__exact=user_id)
     cal = MikranCalendar(user_days).formatyear(2012,4)
-
-    logging.debug(request.user.id);
-    logging.debug(user_id);
-
-    #raise Http403
-    #response = render_to_response("403.html", {'object': "object"}, context_instance=RequestContext(request))
-    #response.status_code = 403
-    #return response
 
     if request.method == 'POST': # If the form has been submitted...
         form = LeaveForm(dict(request.POST.items() + {'user_id':selected.id}.items())) # A form bound to the POST data
@@ -113,11 +162,11 @@ def plan_days(request,user_id):
                                                 'form':form},
                               context_instance=RequestContext(request))
 
-def planned_days(request,user_id):
-    users = User.objects.all()
-    selected = User.objects.get(pk=user_id)
-    user_days = Day.objects.filter(user_id__exact=user_id)
-
-    return render_to_response('plan_days.html',{'users': users,'selected':selected,'user_days':user_days},
-                              context_instance=RequestContext(request))
+#def planned_days(request,user_id):
+#    users = User.objects.all()
+#    selected = User.objects.get(pk=user_id)
+#    user_days = Day.objects.filter(user_id__exact=user_id)
+#
+#    return render_to_response('plan_days.html',{'users': users,'selected':selected,'user_days':user_days},
+#                              context_instance=RequestContext(request))
     

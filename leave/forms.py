@@ -1,16 +1,39 @@
 import datetime,logging
 from django import forms
-from django.forms.extras.widgets import SelectDateWidget,Select
+from django.forms import ModelForm
+from django.forms.widgets import *
+from django.forms.fields import *
+#from django.forms.extras.widgets import SelectDateWidget,Select,HiddenInput
+from django.forms.extras.widgets import *
 from django.contrib.admin import widgets                                       
 
-from leave.models import Day
+from leave.models import *
 
+PRESENT_CHOICES = (('PRESENT', 'Obecny'),
+                   ('SICK', 'Lekarskie'),
+                   )
 
 YEAR_CHOICES = ('2012', '2013')
 STATUS_CHOICES = (('PLANNED', 'Zaplanowany'),
                   ('ACCEPTED', 'Zaakceptowany'),
                   ('REJECTED', 'Odrzucony'),
                   ('CANCELLED', 'Rezygnuje z urlopu w tym terminie'))
+
+
+class SinglePresentForm(ModelForm):
+    #status = forms.ChoiceField(widget=Select, choices=PRESENT_CHOICES)
+    leave_date = forms.DateField(widget=SelectDateWidget(years=YEAR_CHOICES))
+    status = forms.ModelChoiceField(empty_label=None,queryset=Status.objects.filter(status__in=[item for tuple in PRESENT_CHOICES for item in tuple]))
+
+    class Meta:
+        model = Day
+        #exclude = ('leave_date')
+
+
+class PresentForm(SinglePresentForm):
+    #status = forms.ChoiceField(widget=Select, choices=PRESENT_CHOICES)
+    day = forms.DateField(initial=datetime.date.today,widget=SelectDateWidget(years=YEAR_CHOICES))
+
 
 class LeaveForm(forms.Form):
     #first_day = forms.DateField(initial=datetime.date.today,widget=widgets.AdminDateWidget)
