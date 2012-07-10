@@ -9,5 +9,8 @@
 {% endblock %}
 
 {% block body %}
-<h1>Wiem wiem nie działa, oczywiście wszystko moja wina ...</h1>
+{% load staticfiles %}
+<p style="text-align:center">
+<img src={%static "borat.jpeg" %}>  Obecny {{statuses|getByKey:"Obecny"|flatit|default:"brak"}}
+</p>
 {% endblock %}
