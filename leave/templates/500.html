@@ -1,1 +1,13 @@
-500 error
+{% extends "base.html" %}
+
+{% block head %}
+  {% load staticfiles %}
+    <link rel="stylesheet" href="{%static "admin/css/base.css" %}" />
+    <link rel="stylesheet" href="{%static "admin/css/login.css" %}" />
+
+    <title>{% block title %}Błąd, kicha, dupa, !!@@$$%$%$##@@#{% endblock %}</title>
+{% endblock %}
+
+{% block body %}
+<h1>Wiem wiem nie działa, oczywiście wszystko moja wina ...</h1>
+{% endblock %}
