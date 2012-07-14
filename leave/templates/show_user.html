@@ -1,30 +1,27 @@
-{% extends "base.html" %}
+{% extends "index.html" %}
 
-{% block topbar %}
-<h1>Zakładka dla {{selected.first_name}} {{selected.last_name}}</h1>
-<p>
-Dni wykorzystane : xxxx
-Dni przysługujące :yyyy
-</p>
+{% block topbar-welcome %}
+<h1>Widok dla {{selected.first_name}} {{selected.last_name}}</h1>
 {% endblock %}
 
-{% block left %}
+{%block left%}
+<li>
+  <a href="{% url show_user selected.id %}">{{selected.first_name}} {{selected.last_name}}</a>
+</li>
+<li>Urlop zaplanowany : <span class="big">{{days_planned}} dni </span></li>
+<li>Urlop zaakceptowany : <span class="big"> {{days_accepted}} dni </span></li>
+<li>Obecność : <span class="big"> {{days_present}} dni </span></li>
+<li>Choroba : <span class="big"> {{days_sick}} dni </span></li>
+{%endblock%}
 
-<ul>
-{% for user in users %}
-<li><a href="{% url show_user user.id %}">{{user}}</a></li>
-{% endfor %}
-</ul>
+{% block commands %}
 
-<ul>
-  <li><a href="{% url plan_days selected.id %}">Planuj urlop</a></li>
-  <li><a href="{% url present user.id %}">Zgłoś obecność</a></li>
-</ul>
+  <li class="object-tools"><a href="{% url plan_days selected.id %}">Planuj urlop</a></li>
+  <li class="object-tools"><a href="{% url present selected.id %}">Zgłoś obecność</a></li>
 
 {% endblock %}
-{% block content %}
 
+{% block calendar %}
 <p id="header">Kalendarz urlopowy dla {{selected.first_name}} {{selected.last_name}}</p>
 {{cal}}
-
 {% endblock %}

@@ -4,24 +4,34 @@
 
 {% block content %}
 
-<form action="{% url single_present selected.id year month day %}" method="post">{% csrf_token %}
+{%if user_day %} 
+<ul class="messagelist">
+  <li class="warning">Zgłosiłaś/eś już obecność lub chorobę w tym dniu. Status: {{user_day.status.status}} </li>
+</ul>
+{%else%}
+<form class="solid" action="{% url single_present selected.id year month day %}" method="post">{% csrf_token %}
 <p id="header">Zgłaszanie obecności lub choroby</p>
-<ul>
-{{ form.as_ul }}
-<input type="submit"/>
-</ul>
+  <ul class="plainlist">
+    <li>{{ form.non_field_errors }}</li>
+    {% for field in form %}
+    <li>
+      {{ field.errors }}
+    </li>
+    <li>
+      {{ field.label_tag }}
+    </li>
+    <li>
+      {{ field }}
+    </li>
+    {% endfor %}
+  </ul>
+  <input type="submit"/>
 </form>
+{%endif%}
 
-{% load staticfiles %}
 
-<ul>
-<li><b>Legenda na dzień: {{year}}/{{month}}/{{day}}</b></li>
-<li><span class="accepted rect"></span>  Urlop zatwierdzony {{statuses|getByKey:"Zatwierdzony"|flatit|default:"brak"}} </li>
-<li><span class="planned rect"></span>  Urlop planowany: {{statuses|getByKey:"Zaplanowany"|flatit|default:"brak"}}</li>
-<li><span class="rejected rect"></span>  Odrzucony {{statuses|getByKey:"Odrzucony"|flatit|default:"brak"}}</li>
-<li><img src={%static "check24.png" %}>  Obecny {{statuses|getByKey:"Obecny"|flatit|default:"brak"}}</li>
-<li><img src={%static "sick.jpg" %}>  Choroba {{statuses|getByKey:"Lekarskie"|flatit|default:"brak"}}</li>
-</ul>
+<br/>
+{% include "_legenda.html" %}
 
 <p id="header">Kalendarz urlopowy dla {{selected.first_name}} {{selected.last_name}}</p>
 {{cal}}

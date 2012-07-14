@@ -1,35 +1,25 @@
-{% extends "base.html" %}
+{% extends "show_user.html" %}
 
-{% block topbar %}
-<h1>Zakładka dla {{selected.first_name}} {{selected.last_name}}</h1>
-{% endblock %}
-
-{% block left %}
-
-<ul>
-{% for user in users %}
-<li><a href="{% url show_user user.id %}">{{user}}</a></li>
-{% endfor %}
-</ul>
-
-<ul>
-  <li><a href="{% url plan_days selected.id %}">Planuj urlop</a></li>
-  <li>Zgłoś obecność</li>
-</ul>
-
-{% endblock %}
 {% block content %}
 
-<form action="{% url plan_days selected.id %}" method="post">{% csrf_token %}
-<p id="header">Planowanie dni wolnych: zaznacz początek i koniec urlopu</p>
-<ul>
-{{ form.as_ul }}
-<input type="submit"/>
-</ul>
+<form class="solid" action="{% url plan_days selected.id %}" method="post">{% csrf_token %}
+  <p id="header">Planowanie dni wolnych: zaznacz początek i koniec urlopu</p>
+  <ul class="plainlist">
+    <li>{{ form.non_field_errors }}</li>
+    {% for field in form %}
+    <li>
+      {{ field.errors }}
+    </li>
+    <li>
+      {{ field.label_tag }}
+    </li>
+    <li>
+      {{ field }}
+    </li>
+    {% endfor %}
+  </ul>
+  <input type="submit"/>
 </form>
-
-<p id="header">Kalendarz urlopowy dla {{selected.first_name}} {{selected.last_name}}</p>
-{{cal}}
 
 {% endblock %}
 

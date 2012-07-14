@@ -21,6 +21,7 @@ from leave.models import *
 from leave.forms import *
 
 from leave.addon import MikranCalendar
+from leave.decorators import user_allowed
 
 from django.http import HttpResponseRedirect
 from functools import wraps
@@ -38,21 +39,58 @@ def index(request):
 
 @login_required
 def show_user(request,user_id):
-    users = User.objects.all()
+    logging.debug('show_user')
+    #users = User.objects.all()
     selected = User.objects.get(pk=user_id)
     user_days = Day.objects.select_related().filter(user_id__exact=user_id)
 
-    cal = MikranCalendar(user_days,selected.id).formatyear(2012,4)
+    cal = MikranCalendar(user_days,selected.id)
 
-    return render_to_response('show_user.html',{'users': users,'selected':selected,'user_days':user_days,'cal':mark_safe(cal)},
+    return render_to_response('show_user.html',{#'users': users,
+                                                'days_present': user_days.filter(status__status="Obecny").filter(leave_date__year='2012').count(),
+                                                'days_sick':user_days.filter(status__status="Lekarskie").filter(leave_date__year='2012').count(),
+                                                'days_planned':user_days.filter(status__status="Zaplanowany").filter(leave_date__year='2012').count(),
+                                                'days_accepted':user_days.filter(status__status="Zaakceptowane").filter(leave_date__year='2012').count(),
+                                                'selected':selected,
+                                                'user_days':user_days,
+                                                'cal':mark_safe(cal.formatyear(2012,4))
+                                                },
                               context_instance=RequestContext(request))
 
+def show_present(request,year,month,day):
+    users = User.objects.all()
+    user_days = Day.objects.select_related()
+    cal = MikranCalendar(user_days)
+
+    url_day = datetime.date(int(year),int(month),int(day))
+    present_days = Day.objects.select_related().filter(leave_date = url_day)
+
+    return render_to_response('show_present.html',{'users': users,
+                                                   #'selected':selected,
+                                                   #'user_days':user_days,
+                                                   #'user_day':user_day,
+                                                   'cal':mark_safe(cal.formatyear(2012,4)),
+                                                   #'form':form, 
+                                                   'year':year, 
+                                                   'month':month, 
+                                                   'day':day, 
+                                                   'statuses':cal.group_days_by_statuses(present_days)
+                                                   },
+                              context_instance=RequestContext(request))
+
+@login_required
+@user_allowed
 def single_present(request,user_id,year,month,day):
     users = User.objects.all()
     selected = User.objects.get(pk=user_id)
     user_days = Day.objects.select_related().filter(user_id__exact=user_id)
     url_day = datetime.date(int(year),int(month),int(day))
     present_days = Day.objects.select_related().filter(leave_date = url_day)
+
+    #check if logged useed already used that day, if no form will appear, otherwise warning will be shown
+    user_day = user_days.filter(leave_date = url_day)
+    if user_day:
+        user_day = user_day[0]
 
     form = SinglePresentForm(instance=Day(user_id=selected.id,status_id=Status.objects.get(status="Obecny").id,leave_date=url_day))
 
@@ -65,10 +103,12 @@ def single_present(request,user_id,year,month,day):
             form.save()
             messages.add_message(request,messages.INFO, 'Zgłosiłeś obecność/chorobę w dniu : %s' %(url_day))
             return HttpResponseRedirect(reverse('leave.views.show_user',args=(selected.id,)))
+        
 
     return render_to_response('present.html',{'users': users,
                                               'selected':selected,
                                               'user_days':user_days,
+                                              'user_day':user_day,
                                               'cal':mark_safe(cal.formatyear(2012,4)),
                                               'form':form, 
                                               'year':year, 
@@ -88,15 +128,6 @@ def present(request,user_id):
 
     return render_to_response('present.html',{'users': users,'selected':selected,'user_days':user_days,'cal':mark_safe(cal),'form':form},
                               context_instance=RequestContext(request))
-
-def user_allowed(funct):
-    def wrapped(request, user_id):
-        if request.user.id == int(user_id):
-            return funct(request,user_id)
-        else:
-            messages.add_message(request,messages.ERROR, 'Nie posiadasz uprawnień. Zaloguj sie na swoje konto')
-            return redirect('django.contrib.auth.views.login')
-    return wrapped
 
 @login_required
 @user_allowed
@@ -126,16 +157,21 @@ def plan_days(request,user_id):
             status_obj = Status.objects.get(status=form.translateChoice(request.POST['status']));
 
             if form.isCancelled(request.POST['status']):
-                Day.objects.filter(user_id=selected.id).filter(leave_date__gte = start_date).filter(leave_date__lte = end_date).delete()
+                todel = Day.objects.filter(user_id=selected.id).exclude(status__status="Obecny").exclude(status__status="Lekarskie").filter(leave_date__gte = start_date).filter(leave_date__lte = end_date)
+                logging.debug(todel)
+                #todel = Day.objects.filter(user_id=selected.id).filter(leave_date__gte = start_date).filter(leave_date__lte = end_date).delete()
+                if todel:
+                    todel.delete()
 
-            if form.isPlanned(request.POST['status']):
+            elif form.isPlanned(request.POST['status']):
                 days = []
                 for month in range(start_month,end_month+1):
                     for day in current.itermonthdates(int(request.POST['first_day_year']),
                                                       month):
                         if day >= start_date and day <= end_date:
-                            if not day in days:
-                                days.append(day)
+                            if day.isoweekday() < 6:
+                                if not day in days:
+                                    days.append(day)
 
                 #build list of objects for bulk create
                 Day.objects.bulk_create([Day(user_id=selected.id,status_id=status_obj.id,leave_date=day) for day in days])
@@ -147,9 +183,6 @@ def plan_days(request,user_id):
                             
             #display OK message for the user
             messages.add_message(request,messages.INFO, 'Zaplanowano urlop od %s do %s' %(start_date,end_date))
-
-            #return render_to_response('show_user.html',{'users': users,'selected':selected,'user_days':user_days,'cal':mark_safe(cal)},
-            #context_instance=RequestContext(request))
 
             return HttpResponseRedirect(reverse('leave.views.show_user',args=(selected.id,)))
     else:

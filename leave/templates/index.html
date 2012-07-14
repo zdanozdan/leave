@@ -5,13 +5,13 @@
 
 <ul>
 {% for user in users %}
-<li><a href="show/{{user.id}}/user">{{user}}</a></li>
+<li><a href="{% url show_user user.id %}">{{user.first_name}}</a></li>
 {% endfor %}
 </ul>
 
 {% endblock %}
 
-{% block content %}
+{% block calendar %}
 
 <p id="header">Kalendarz urlopowy Mikran. Wszyscy pracownicy. </p>
 {{cal}}

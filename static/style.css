@@ -1,4 +1,7 @@
-.solid { border:1px solid;margin:10px }
+.solid { border:1px solid blue;margin:10px }
+.b-bottom { border-bottom:3px solid blue;margin:10px;}
+.b-right { border-right:3px solid blue;margin:10px;}
+.b-top-light { border-top:1px solid blue;margin:3px;}
 div.float { float:left}
 div.clear { clear:both}
 
@@ -9,4 +12,14 @@ div.clear { clear:both}
 .sick {background-image:url(/static/sick.jpg); background-repeat:no-repeat}
 .multiple {border-bottom: 3px solid red; border-right:3px solid red}
 
+.inline {display:inline-block}
 .rect {width:30px;height:20px;display:inline-block;}
+
+.big {font-size: 13px }
+.bigger {font-size: 16px }
+
+.blue {color:blue}
+
+.month td.sun {color:red;background-color:#E8E8E8}
+.month th.sat {color:red;}
+.month th.sun {color:red;}

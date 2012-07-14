@@ -3,34 +3,55 @@
 {% block head %}
 <head>
   {% load staticfiles %}
-    <link rel="stylesheet" href="{%static "style.css" %}" />
     <link rel="stylesheet" href="{%static "jquery-1.7.2.min.js" %}" />
     <link rel="stylesheet" href="{%static "admin/css/base.css" %}" />
     <link rel="stylesheet" href="{%static "admin/css/forms.css" %}" />
+    <link rel="stylesheet" href="{%static "style.css" %}" />
 
     <title>{% block title %}System urlopowy mikran{% endblock %}</title>
 </head>
 {% endblock %}
 {% block body %}
 <body>
-    <div id="topbar" class="solid">
-        {% block topbar %}
-	<h1>Witamy w sytemie urlopowym Mikran</h1>
-	{% if user.is_authenticated %}
-	<p>Witamy w pracy, {{ user.first_name }}.</p>
-	<a href="{% url django.contrib.auth.views.logout %}?next={%url index %}">Wyloguj się</a>
-	{% else %}
-	<p><a href="{% url django.contrib.auth.views.login %}?next={%url index %}">Zaloguj się</a></p>
-	{% endif %}
+    <div id="topbar" class="b-bottom">
+        {% block topbar%}
+	<div class="inline">{% block topbar-welcome %}<h1>Witamy w sytemie urlopowym Mikran</h1>{% endblock %}
+	  Dzisiaj: {% now "d M, Y H:i" %}
+	</div>
+	<div class="float-right">
+	  <div class="big">
+	    {% if user.is_authenticated %}
+	    Witamy w pracy, {{ user.first_name }}.
+	    <a href="{% url django.contrib.auth.views.logout %}?next={%url index %}">Wyloguj się</a>
+	    {% else %}
+	    <a href="{% url django.contrib.auth.views.login %}?next={%url index %}">Zaloguj się</a>
+	    {% endif %}
+	  </div>												    
+	</div>
         {% endblock %}
     </div>
-    <div id="left" class="solid float" style="background-color:#FFD700;width:200px">
-        <ul><li><a href="{% url index %}">Pełen widok</a></li></ul>
+    <div id="left" class="float b-right" style="width:250px;height:650px">
+        <ul>
+	  <li><a href="{% url index %}">Pracownicy, główny widok</a></li>
+	</ul>
+	<ul>
         {% block left %}
-	123
         {% endblock %}
+	</ul>
+	<ul class="form-row plainlist">
+	  {% block commands %}
+	  {% endblock %}
+	</ul>
+	<ul class="plainlist b-top-light">
+	  <li><h3>Legenda:</h3></li>
+	  <li><span class="accepted rect"></span>  Urlop zatwierdzony</li>
+	  <li><span class="planned rect"></span>  Urlop planowany</li>
+	  <li><span class="rejected rect"></span>  Urlop Odrzucony</li>
+	  <li><img src={%static "check24.png" %}>  Obecny</li>
+	  <li><img src={%static "sick.jpg" %}>  Choroba</li>
+	</ul>
     </div>
-    <div id="content" class="solid float">
+    <div id="content" class="float">
     {% if messages %}
       <ul class="messages messagelist">
 	{% for message in messages %}
@@ -38,10 +59,10 @@
 	{% endfor %}
       </ul>
       {% endif %}
-        {% block content %}{% endblock %}
+        {% block content %}{% endblock %}{% block calendar %}{% endblock %}
     </div>
-    <div id="bottom" style="border:1px solid; clear:both">
-        {% block bottom %}bottom{% endblock %}
+    <div id="bottom" style="clear:both .b-top-light">
+        {% block bottom %}{% endblock %}
     </div>
 </body>
 {% endblock %}

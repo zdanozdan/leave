@@ -4,12 +4,11 @@ from django.views.generic.simple import direct_to_template
 
 urlpatterns = patterns('leave.views',
     url(r'^$','index',name='index'),
-    url(r'^show/(?P<user_id>\d+)/user/$', 'show_user', name="show_user"),
-    url(r'^plan/(?P<user_id>\d+)/user/$', 'plan_days', name="plan_days"),
-    #url(r'^planned/(?P<user_id>\d+)/user/$', 'planned_days', name="planned_days"),
-    url(r'^present/(?P<user_id>\d+)/user/$', 'present', name="present"),
-    #url(r'^single/present/(?P<user_id>\d+)/user/$', 'single_present', name="single_present"),
-    url(r'^zlgos/obecnosc/(?P<user_id>\d+)/w/dniu/(?P<year>\d{4})/(?P<month>\d{1,2})/(?P<day>\d{1,2})/$', 'single_present', name='single_present'),
+    url(r'^(?P<user_id>\d+)/pokaz/pracownika/$', 'show_user', name="show_user"),
+    url(r'^(?P<user_id>\d+)/planuj/urlop/$', 'plan_days', name="plan_days"),
+    url(r'^(?P<user_id>\d+)/zlgos/obecnosc/$', 'present', name="present"),
+    url(r'^(?P<user_id>\d+)/zglos/obecnosc/w/dniu/(?P<year>\d{4})/(?P<month>\d{1,2})/(?P<day>\d{1,2})/$', 'single_present', name='single_present'),
+    url(r'^pokaz/obecnosc/w/dniu/(?P<year>\d{4})/(?P<month>\d{1,2})/(?P<day>\d{1,2})/$', 'show_present', name='show_present'),
 )
 
 urlpatterns += patterns('',
