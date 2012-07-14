@@ -30,7 +30,7 @@
 	</div>
         {% endblock %}
     </div>
-    <div id="left" class="float b-right" style="width:250px;height:650px">
+    <div id="left" class="float" style="width:250px;height:650px">
         <ul>
 	  <li><a href="{% url index %}">Pracownicy, główny widok</a></li>
 	</ul>
@@ -51,7 +51,7 @@
 	  <li><img src={%static "sick.jpg" %}>  Choroba</li>
 	</ul>
     </div>
-    <div id="content" class="float">
+    <div id="content" class="float b-left">
     {% if messages %}
       <ul class="messages messagelist">
 	{% for message in messages %}

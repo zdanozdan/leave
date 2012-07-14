@@ -39,7 +39,6 @@ def index(request):
 
 @login_required
 def show_user(request,user_id):
-    logging.debug('show_user')
     #users = User.objects.all()
     selected = User.objects.get(pk=user_id)
     user_days = Day.objects.select_related().filter(user_id__exact=user_id)
@@ -109,6 +108,11 @@ def single_present(request,user_id,year,month,day):
                                               'selected':selected,
                                               'user_days':user_days,
                                               'user_day':user_day,
+                                              'days_present': user_days.filter(status__status="Obecny").filter(leave_date__year='2012').count(),
+                                              'days_sick':user_days.filter(status__status="Lekarskie").filter(leave_date__year='2012').count(),
+                                              'days_planned':user_days.filter(status__status="Zaplanowany").filter(leave_date__year='2012').count(),
+                                              'days_accepted':user_days.filter(status__status="Zaakceptowane").filter(leave_date__year='2012').count(),
+                                              'selected':selected,
                                               'cal':mark_safe(cal.formatyear(2012,4)),
                                               'form':form, 
                                               'year':year, 
@@ -157,11 +161,7 @@ def plan_days(request,user_id):
             status_obj = Status.objects.get(status=form.translateChoice(request.POST['status']));
 
             if form.isCancelled(request.POST['status']):
-                todel = Day.objects.filter(user_id=selected.id).exclude(status__status="Obecny").exclude(status__status="Lekarskie").filter(leave_date__gte = start_date).filter(leave_date__lte = end_date)
-                logging.debug(todel)
-                #todel = Day.objects.filter(user_id=selected.id).filter(leave_date__gte = start_date).filter(leave_date__lte = end_date).delete()
-                if todel:
-                    todel.delete()
+                todel = Day.objects.filter(user_id=selected.id).exclude(status__status="Obecny").exclude(status__status="Lekarskie").filter(leave_date__gte = start_date).filter(leave_date__lte = end_date).delete()
 
             elif form.isPlanned(request.POST['status']):
                 days = []

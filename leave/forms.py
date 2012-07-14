@@ -1,3 +1,5 @@
+# This Python file uses the following encoding: utf-8
+
 import datetime,logging
 from django import forms
 from django.forms import ModelForm
@@ -22,8 +24,9 @@ STATUS_CHOICES = (('PLANNED', 'Zaplanowany'),
 
 class SinglePresentForm(ModelForm):
     #status = forms.ChoiceField(widget=Select, choices=PRESENT_CHOICES)
-    leave_date = forms.DateField(widget=SelectDateWidget(years=YEAR_CHOICES))
-    status = forms.ModelChoiceField(empty_label=None,queryset=Status.objects.filter(status__in=[item for tuple in PRESENT_CHOICES for item in tuple]))
+    leave_date = forms.DateField(widget=SelectDateWidget(years=YEAR_CHOICES),label='Zgłaszam obecność w dniu')
+    status = forms.ModelChoiceField(empty_label=None,queryset=Status.objects.filter(status__in=[item for tuple in PRESENT_CHOICES for item in tuple]),label="Obecny czy nie ?")
+    user = forms.ModelChoiceField(empty_label=None,queryset=User.objects.all(),widget=HiddenInput,label="Pracownik")
 
     class Meta:
         model = Day
@@ -37,10 +40,10 @@ class PresentForm(SinglePresentForm):
 
 class LeaveForm(forms.Form):
     #first_day = forms.DateField(initial=datetime.date.today,widget=widgets.AdminDateWidget)
-    first_day = forms.DateField(initial=datetime.date.today,widget=SelectDateWidget(years=YEAR_CHOICES))
-    last_day = forms.DateField(initial=datetime.date.today,widget=SelectDateWidget(years=YEAR_CHOICES))
+    first_day = forms.DateField(initial=datetime.date.today,widget=SelectDateWidget(years=YEAR_CHOICES),label="Pierwszy dzień urlopu")
+    last_day = forms.DateField(initial=datetime.date.today,widget=SelectDateWidget(years=YEAR_CHOICES), label="Ostatni dzień urlopu")
     status = forms.ChoiceField(widget=Select, choices=STATUS_CHOICES)
-    message = forms.CharField(widget=forms.Textarea, required=False)
+    message = forms.CharField(widget=forms.Textarea, required=False,label="Wiadomość")
 
     def clean(self):
         cleaned_data = super(LeaveForm, self).clean()

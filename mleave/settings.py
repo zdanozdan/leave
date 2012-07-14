@@ -14,6 +14,12 @@ ADMINS = (
 
 #LOGIN_URL = "/leave/accounts/login"
 
+TEMPLATE_CONTEXT_PROCESSORS = (
+    'django.contrib.auth.context_processors.auth',
+    'django.core.context_processors.request',
+    'leave.context_processors.my_date_today',
+    )
+    
 MANAGERS = ADMINS
 
 DATABASES = {

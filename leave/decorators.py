@@ -6,7 +6,7 @@ from django.shortcuts import redirect
 
 def user_allowed(funct):
     def wrapped(request, user_id, *args, **kwargs):
-        if request.user.id == int(user_id):
+        if request.user.id == int(user_id) or request.user.is_superuser:
             return funct(request,user_id,*args,**kwargs)
         else:
             messages.add_message(request,messages.ERROR, 'Nie posiadasz uprawnień. Zaloguj sie na swoje konto')
