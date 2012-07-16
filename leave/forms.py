@@ -26,7 +26,7 @@ class SinglePresentForm(ModelForm):
     #status = forms.ChoiceField(widget=Select, choices=PRESENT_CHOICES)
     leave_date = forms.DateField(widget=SelectDateWidget(years=YEAR_CHOICES),label='Zgłaszam obecność w dniu')
     status = forms.ModelChoiceField(empty_label=None,queryset=Status.objects.filter(status__in=[item for tuple in PRESENT_CHOICES for item in tuple]),label="Obecny czy nie ?")
-    user = forms.ModelChoiceField(empty_label=None,queryset=User.objects.all(),widget=HiddenInput,label="Pracownik")
+    user = forms.ModelChoiceField(empty_label=None,queryset=User.objects.all(),widget=HiddenInput,label='')
 
     class Meta:
         model = Day

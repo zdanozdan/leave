@@ -162,6 +162,9 @@ def plan_days(request,user_id):
 
             if form.isCancelled(request.POST['status']):
                 todel = Day.objects.filter(user_id=selected.id).exclude(status__status="Obecny").exclude(status__status="Lekarskie").filter(leave_date__gte = start_date).filter(leave_date__lte = end_date).delete()
+                #
+                #send signal for bulk operation
+                days_planned.send(sender=User, user=selected, status=status_obj, start=start_date, end=end_date, operation="DEL")
 
             elif form.isPlanned(request.POST['status']):
                 days = []
@@ -175,6 +178,8 @@ def plan_days(request,user_id):
 
                 #build list of objects for bulk create
                 Day.objects.bulk_create([Day(user_id=selected.id,status_id=status_obj.id,leave_date=day) for day in days])
+                #send bulk days create signal
+                days_planned.send(sender=User, user=selected, status=status_obj, start=start_date, end=end_date, operation="PLAN".encode('utf-8'))
 
             else:
                 Day.objects.filter(user_id=selected.id,
@@ -184,7 +189,7 @@ def plan_days(request,user_id):
             #display OK message for the user
             messages.add_message(request,messages.INFO, 'Zaplanowano urlop od %s do %s' %(start_date,end_date))
 
-            return HttpResponseRedirect(reverse('leave.views.show_user',args=(selected.id,)))
+            #return HttpResponseRedirect(reverse('leave.views.show_user',args=(selected.id,)))
     else:
         form = LeaveForm()
 

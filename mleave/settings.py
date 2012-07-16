@@ -12,6 +12,8 @@ ADMINS = (
     ('Tomasz Zdanowski', 'tomasz@mikran.pl'),
 )
 
+EMAIL_HOST = "mikran.pl"
+
 #LOGIN_URL = "/leave/accounts/login"
 
 TEMPLATE_CONTEXT_PROCESSORS = (
