@@ -4,7 +4,7 @@
 <ul class="plainlist">
   <li class="inline"><h3>Status urlopów na dzień: {{year}}/{{month}}/{{day}}</h3></li>
   <ul>
-    <li><span class="accepted rect"></span>  Urlop zatwierdzony <span class="bigger blue">{{statuses|getByKey:"Zatwierdzony"|flatit|default:"brak"}} </span></li>
+    <li><span class="accepted rect"></span>  Urlop zatwierdzony <span class="bigger blue">{{statuses|getByKey:"Zaakceptowany"|flatit|default:"brak"}} </span></li>
     <li><span class="planned rect"></span>  Urlop planowany: <span class="bigger blue">{{statuses|getByKey:"Zaplanowany"|flatit|default:"brak"}}</span></li>
     <li><span class="rejected rect"></span>  Urlop Odrzucony: <span class="bigger blue">{{statuses|getByKey:"Odrzucony"|flatit|default:"brak"}}</span></li>
     <li><img src={%static "check24.png" %}>  Obecny: <span class="bigger blue">{{statuses|getByKey:"Obecny"|flatit|default:"brak"}}</span></li>

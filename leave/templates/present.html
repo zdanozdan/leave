@@ -6,7 +6,7 @@
 
 {%if user_day %} 
 <ul class="messagelist">
-  <li class="warning">Zgłosiłaś/eś już obecność lub chorobę w tym dniu. Status: {{user_day.status.status}} </li>
+  <li class="warning">Ten dzień jest już zarezerowany. Status: [ {{user_day.status.status}} ]</li>
 </ul>
 {%else%}
 <form class="solid" action="{% url single_present selected.id year month day %}" method="post">{% csrf_token %}

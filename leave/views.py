@@ -28,7 +28,7 @@ from functools import wraps
 
 # Create your views here.
 
-#@login_required
+@login_required
 def index(request):
     users = User.objects.all()
     user_days = Day.objects.select_related()
@@ -39,7 +39,6 @@ def index(request):
 
 @login_required
 def show_user(request,user_id):
-    #users = User.objects.all()
     selected = User.objects.get(pk=user_id)
     user_days = Day.objects.select_related().filter(user_id__exact=user_id)
 
@@ -56,6 +55,7 @@ def show_user(request,user_id):
                                                 },
                               context_instance=RequestContext(request))
 
+@login_required
 def show_present(request,year,month,day):
     users = User.objects.all()
     user_days = Day.objects.select_related()
@@ -65,11 +65,7 @@ def show_present(request,year,month,day):
     present_days = Day.objects.select_related().filter(leave_date = url_day)
 
     return render_to_response('show_present.html',{'users': users,
-                                                   #'selected':selected,
-                                                   #'user_days':user_days,
-                                                   #'user_day':user_day,
                                                    'cal':mark_safe(cal.formatyear(2012,4)),
-                                                   #'form':form, 
                                                    'year':year, 
                                                    'month':month, 
                                                    'day':day, 
@@ -100,7 +96,7 @@ def single_present(request,user_id,year,month,day):
         if form.is_valid(): # All validation rules pass
             #display OK message for the user
             form.save()
-            messages.add_message(request,messages.INFO, 'Zgłosiłeś obecność/chorobę w dniu : %s' %(url_day))
+            messages.add_message(request,messages.INFO, 'Ten dzień (%s) jest już zarezerwowany' %(url_day))
             return HttpResponseRedirect(reverse('leave.views.show_user',args=(selected.id,)))
         
 
@@ -122,6 +118,7 @@ def single_present(request,user_id,year,month,day):
                                               },
                               context_instance=RequestContext(request))
 
+@login_required
 def present(request,user_id):
     form = PresentForm()
     users = User.objects.all()
@@ -200,11 +197,4 @@ def plan_days(request,user_id):
                                                 'form':form},
                               context_instance=RequestContext(request))
 
-#def planned_days(request,user_id):
-#    users = User.objects.all()
-#    selected = User.objects.get(pk=user_id)
-#    user_days = Day.objects.filter(user_id__exact=user_id)
-#
-#    return render_to_response('plan_days.html',{'users': users,'selected':selected,'user_days':user_days},
-#                              context_instance=RequestContext(request))
     
