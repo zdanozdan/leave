@@ -78,10 +78,10 @@ def days_planned_signal_handler(sender, **kwargs):
 
     datatuple = (
         (message, message + "\r\nOtrzymujesz tą wiadomość jako administrator. Urlop musi być zaakceptowany przez kierownika/administratora \r\n\r\nhttp://urlopy.mikran.com", 'tomasz@mikran.pl', ['tomasz@mikran.pl']),
-        ('Potwierdzenie od urlopy.mikran.com', message + "\r\nOtrzymujesz tą wiadomość jako potwierdzenie. Urlop musi być zaakceptowany przez kierownika/administratora \r\n\r\nhttp://urlopy.mikran.com", 'tomasz@mikran.pl', [kwargs['user'].email]),
+        #('Potwierdzenie od urlopy.mikran.com', message + "\r\nOtrzymujesz tą wiadomość jako potwierdzenie. Urlop musi być zaakceptowany przez kierownika/administratora \r\n\r\nhttp://urlopy.mikran.com", 'tomasz@mikran.pl', [kwargs['user'].email]),
         )
 
-    #send_mass_mail(datatuple,auth_user=EMAIL_HOST_USER, auth_password=EMAIL_HOST_PASSWORD)
+    send_mass_mail(datatuple,auth_user=EMAIL_HOST_USER, auth_password=EMAIL_HOST_PASSWORD)
 
 @receiver(pre_save, sender=Day)
 def day_save_signal_handler(sender, **kwargs):
