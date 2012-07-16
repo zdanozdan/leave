@@ -5,7 +5,7 @@
 
 <ul>
 {% for user in users %}
-<li><a href="{% url show_user user.id %}">{{user.first_name}}</a></li>
+<li><a href="{% url show_user user.id %}">{{user.first_name}} {{user.last_name}}</a></li>
 {% endfor %}
 </ul>
 
