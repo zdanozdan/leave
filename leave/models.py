@@ -10,6 +10,9 @@ from django.dispatch import receiver
 import django.dispatch
 from django.core.mail import send_mass_mail
 
+from django.contrib import admin
+
+
 # Create your models here.
 
 # user profile keep all information we need extra.
