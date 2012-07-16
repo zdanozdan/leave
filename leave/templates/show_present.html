@@ -1,0 +1,13 @@
+{% extends "index.html" %}
+
+{% block content %}
+
+{% include "_legenda.html" %}
+
+{% endblock %}
+
+{% block calendar %}
+<p id="header">Kalendarz urlopowy dla {{selected.first_name}} {{selected.last_name}}</p>
+{{cal}}
+
+{% endblock %}
