@@ -189,7 +189,7 @@ def plan_days(request,user_id):
             #display OK message for the user
             messages.add_message(request,messages.INFO, 'Zaplanowano urlop od %s do %s' %(start_date,end_date))
 
-            #return HttpResponseRedirect(reverse('leave.views.show_user',args=(selected.id,)))
+            return HttpResponseRedirect(reverse('leave.views.show_user',args=(selected.id,)))
     else:
         form = LeaveForm()
 
