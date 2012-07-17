@@ -157,7 +157,7 @@ def plan_days(request,user_id):
             status_obj = Status.objects.get(status=form.translateChoice(request.POST['status']));
 
             if form.isCancelled(request.POST['status']):
-                todel = Day.objects.filter(user_id=selected.id).exclude(status__status="Obecny").exclude(status__status="Lekarskie").filter(leave_date__gte = start_date).filter(leave_date__lte = end_date).delete()
+                Day.objects.filter_for_delete(selected.id, start_date, end_date).delete()
                 #
                 #send signal for bulk operation
                 days_planned.send(sender=User, user=selected, status=status_obj, start=start_date, end=end_date, operation="DEL")

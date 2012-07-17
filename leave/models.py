@@ -34,14 +34,17 @@ class Status(models.Model):
 # Day model support classes
 #
 class DayQuerySet(QuerySet):
+    def filter_user(self,user_id):
+        return self.select_related().filter(user_id__exact=user_id)
+
     def filter_year(self,year='2012'):
         return self.filter(leave_date__year=year)
 
+    def filter_for_delete(self, uid, start_date, end_date):
+        return self.filter(user_id=uid).exclude(status__status="Obecny").exclude(status__status="Lekarskie").filter(leave_date__gte = start_date).filter(leave_date__lte = end_date)
+
     def filter_status(self,status):
         return self.filter(status__status = status)
-
-    def filter_user(self,user_id):
-        return self.select_related().filter(user_id__exact=user_id)
 
     def filter_present(self,year='2012'):
         return self.filter_year(year).filter_status("Obecny")
