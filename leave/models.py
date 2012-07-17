@@ -3,7 +3,7 @@
 import logging,datetime
 from django.db import models
 from django.contrib.auth.models import User
-#from time import gmtime, strftime
+from django.db.models.query import QuerySet
 from django.template.defaultfilters import date as _date
 from django.db.models.signals import pre_save,post_save,pre_delete
 from django.dispatch import receiver
@@ -30,16 +30,47 @@ class Status(models.Model):
     def __unicode__(self):
         return self.status
 
+#
+# Day model support classes
+#
+class DayQuerySet(QuerySet):
+    def filter_year(self,year='2012'):
+        return self.filter(leave_date__year=year)
+
+    def filter_status(self,status):
+        return self.filter(status__status = status)
+
+    def filter_present(self,year='2012'):
+        return self.filter_year(year).filter_status("Obecny")
+
+    def filter_sick(self,year='2012'):
+        return self.filter_year(year).filter_status("Lekarskie")
+
+    def filter_planned(self,year='2012'):
+        return self.filter_year(year).filter_status("Zaplanowany")
+
+    def filter_accepted(self,year='2012'):
+        return self.filter_year(year).filter_status("Zaakceptowane")
+
+class DayManager(models.Manager):
+    def get_query_set(self):
+        return DayQuerySet(self.model)
+    def __getattr__(self, name):
+        return getattr(self.get_query_set(), name)
+
 class Day(models.Model):
     leave_date = models.DateField('leave date')
     status = models.ForeignKey(Status)
     user = models.ForeignKey(User)
+
+    objects = DayManager()
 
     class Meta:
         unique_together = ("leave_date", "user"),
 
     def __unicode__(self):
         return _date(self.leave_date, "D d b Y")
+
 
 class Event(models.Model):
     date = models.DateField('event date')

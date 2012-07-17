@@ -11,6 +11,7 @@ class EventAdmin(admin.ModelAdmin):
 
 class DayAdmin(admin.ModelAdmin):
     list_display = ('leave_date','status','user')
+    list_filter = ('user','status')
 
 admin.site.register(UserProfile)
 admin.site.register(Day,DayAdmin)

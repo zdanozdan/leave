@@ -44,11 +44,10 @@ def show_user(request,user_id):
 
     cal = MikranCalendar(user_days,selected.id)
 
-    return render_to_response('show_user.html',{#'users': users,
-                                                'days_present': user_days.filter(status__status="Obecny").filter(leave_date__year='2012').count(),
-                                                'days_sick':user_days.filter(status__status="Lekarskie").filter(leave_date__year='2012').count(),
-                                                'days_planned':user_days.filter(status__status="Zaplanowany").filter(leave_date__year='2012').count(),
-                                                'days_accepted':user_days.filter(status__status="Zaakceptowane").filter(leave_date__year='2012').count(),
+    return render_to_response('show_user.html',{'days_present': user_days.filter_present().count(),
+                                                'days_sick':user_days.filter_sick().count(),
+                                                'days_planned':user_days.filter_planned().count(),
+                                                'days_accepted':user_days.filter_accepted().count(),
                                                 'selected':selected,
                                                 'user_days':user_days,
                                                 'cal':mark_safe(cal.formatyear(2012,4))
@@ -104,10 +103,10 @@ def single_present(request,user_id,year,month,day):
                                               'selected':selected,
                                               'user_days':user_days,
                                               'user_day':user_day,
-                                              'days_present': user_days.filter(status__status="Obecny").filter(leave_date__year='2012').count(),
-                                              'days_sick':user_days.filter(status__status="Lekarskie").filter(leave_date__year='2012').count(),
-                                              'days_planned':user_days.filter(status__status="Zaplanowany").filter(leave_date__year='2012').count(),
-                                              'days_accepted':user_days.filter(status__status="Zaakceptowane").filter(leave_date__year='2012').count(),
+                                              'days_present': user_days.filter_present().count(),
+                                              'days_sick':user_days.filter_sick().count(),
+                                              'days_planned':user_days.filter_planned().count(),
+                                              'days_accepted':user_days.filter_accepted().count(),
                                               'selected':selected,
                                               'cal':mark_safe(cal.formatyear(2012,4)),
                                               'form':form, 
