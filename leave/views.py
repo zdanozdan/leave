@@ -40,8 +40,7 @@ def index(request):
 @login_required
 def show_user(request,user_id):
     selected = User.objects.get(pk=user_id)
-    user_days = Day.objects.select_related().filter(user_id__exact=user_id)
-
+    user_days = Day.objects.filter_user(user_id)
     cal = MikranCalendar(user_days,selected.id)
 
     return render_to_response('show_user.html',{'days_present': user_days.filter_present().count(),
@@ -77,7 +76,8 @@ def show_present(request,year,month,day):
 def single_present(request,user_id,year,month,day):
     users = User.objects.all()
     selected = User.objects.get(pk=user_id)
-    user_days = Day.objects.select_related().filter(user_id__exact=user_id)
+    user_days = Day.objects.filter_user(user_id)
+
     url_day = datetime.date(int(year),int(month),int(day))
     present_days = Day.objects.select_related().filter(leave_date = url_day)
 
@@ -122,7 +122,7 @@ def present(request,user_id):
     form = PresentForm()
     users = User.objects.all()
     selected = User.objects.get(pk=user_id)
-    user_days = Day.objects.select_related().filter(user_id__exact=user_id)
+    user_days = Day.objects.filter_user(user_id)
 
     cal = MikranCalendar(user_days).formatyear(2012,4)
 
@@ -134,7 +134,7 @@ def present(request,user_id):
 def plan_days(request,user_id):
     users = User.objects.all()
     selected = User.objects.get(pk=user_id)
-    user_days = Day.objects.select_related().filter(user_id__exact=user_id)
+    user_days = Day.objects.filter_user(user_id)
     cal = MikranCalendar(user_days).formatyear(2012,4)
 
     if request.method == 'POST': # If the form has been submitted...

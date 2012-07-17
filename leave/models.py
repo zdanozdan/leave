@@ -40,6 +40,9 @@ class DayQuerySet(QuerySet):
     def filter_status(self,status):
         return self.filter(status__status = status)
 
+    def filter_user(self,user_id):
+        return self.select_related().filter(user_id__exact=user_id)
+
     def filter_present(self,year='2012'):
         return self.filter_year(year).filter_status("Obecny")
 
