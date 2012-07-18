@@ -60,6 +60,11 @@ class LeaveForm(forms.Form):
             if cnt > 0:
                 raise forms.ValidationError("W tym terminie juz zaplanowales urlop !")
 
+        if self.isAccepted(status):
+            u = User.objects.get(id=self.data['user_id'])
+            if u.is_superuser == True:
+                raise forms.ValidationError("Sorry ale tylko chief może zaakceptować Twój urlop. Kup piwo i spróbuj ponownie.")
+
         # Always return the full collection of cleaned data.
         return cleaned_data
 
@@ -68,6 +73,9 @@ class LeaveForm(forms.Form):
 
     def isPlanned(self,choice):
         return "PLANNED" in choice
+
+    def isAccepted(self,choice):
+        return "ACCEPTED" in choice
     
     def isRejected(self,choice):
         return "REJECTED" in choice
