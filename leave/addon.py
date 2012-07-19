@@ -30,7 +30,7 @@ class MikranCalendar(LocaleHTMLCalendar):
         self.group_users_by_day = self.group_users_by_days(user_days)        
         self.selected_id = selected_id
 
-        super(MikranCalendar, self).__init__()
+        super(MikranCalendar, self).__init__(locale='pl_PL.utf8')
 
     def formatday(self, day, weekday):
         k = '%02d-%02d-%04d' % (day,self.month,self.year)
