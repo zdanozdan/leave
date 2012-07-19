@@ -8,6 +8,7 @@ urlpatterns = patterns('leave.views',
     url(r'^(?P<user_id>\d+)/planuj/urlop/$', 'plan_days', name="plan_days"),
     url(r'^(?P<user_id>\d+)/zlgos/obecnosc/$', 'present', name="present"),
     url(r'^(?P<user_id>\d+)/zglos/obecnosc/w/dniu/(?P<year>\d{4})/(?P<month>\d{1,2})/(?P<day>\d{1,2})/$', 'single_present', name='single_present'),
+    url(r'^(?P<user_id>\d+)/zglos/chorobe/w/okresie/$', 'sick', name='sick'),
     url(r'^pokaz/obecnosc/w/dniu/(?P<year>\d{4})/(?P<month>\d{1,2})/(?P<day>\d{1,2})/$', 'show_present', name='show_present'),
 )
 

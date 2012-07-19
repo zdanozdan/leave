@@ -17,6 +17,7 @@
 {% block commands %}
   <li class="object-tools"><a href="{% url plan_days selected.id %}">Planuj urlop</a></li>
   <li class="object-tools"><a href="{% url single_present selected.id my_date_today|date:'Y' my_date_today|date:'m' my_date_today|date:'d'%}">Zgłoś obecność dzisiaj</a></li>
+  <li class="object-tools"><a href="{% url sick selected.id %}">Zgłoś zwolnienie lekarskie</a></li>
 
 {% endblock %}
 

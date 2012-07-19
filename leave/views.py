@@ -131,6 +131,64 @@ def present(request,user_id):
 
 @login_required
 @user_allowed
+def sick(request,user_id):
+    users = User.objects.all()
+    selected = User.objects.get(pk=user_id)
+    user_days = Day.objects.filter_user(user_id)
+    cal = MikranCalendar(user_days).formatyear(2012,4)
+
+    if request.method == 'POST': # If the form has been submitted...
+        form = SickForm(dict(request.POST.items() + {'user_id':selected.id}.items())) # A form bound to the POST data
+        if form.is_valid(): # All validation rules pass
+            start_date = datetime.date(int(request.POST['first_day_year']),
+                                       int(request.POST['first_day_month']),
+                                       int(request.POST['first_day_day']))
+            
+            end_date = datetime.date(int(request.POST['last_day_year']),
+                                     int(request.POST['last_day_month']),
+                                     int(request.POST['last_day_day']))
+
+            start_month = int(request.POST['first_day_month'])
+            end_month = int(request.POST['last_day_month'])
+
+            status_obj = Status.objects.get(status=form.translateChoice(request.POST['status']));
+
+            days = []
+            current = Calendar()
+            for month in range(start_month,end_month+1):
+                for day in current.itermonthdates(int(request.POST['first_day_year']),
+                                                  month):
+                    if day >= start_date and day <= end_date:
+                        if day.isoweekday() < 6:
+                            if not day in days:
+                                days.append(day)
+
+            #build list of objects for bulk create
+            Day.objects.bulk_create([Day(user_id=selected.id,status_id=status_obj.id,leave_date=day) for day in days])
+            #send bulk sick days create signal
+            days_planned.send(sender=User, user=selected, status=status_obj, start=start_date, end=end_date, operation="SICK".encode('utf-8'))
+
+            #display OK message for the user
+            messages.add_message(request,messages.INFO, 'Zgłosiłeś zwolnienie lekarskie od %s do %s' %(start_date,end_date))
+
+            return HttpResponseRedirect(reverse('leave.views.show_user',args=(selected.id,)))
+    else:
+        form = SickForm()
+        
+    return render_to_response('sick_days.html',{'users': users,
+                                                'selected':selected,
+                                                'user_days':user_days,
+                                                'cal':mark_safe(cal),
+                                                'days_present': user_days.filter_present().count(),
+                                                'days_sick':user_days.filter_sick().count(),
+                                                'days_planned':user_days.filter_planned().count(),
+                                                'days_accepted':user_days.filter_accepted().count(),
+                                                'form':form},
+                              context_instance=RequestContext(request))
+
+
+@login_required
+@user_allowed
 def plan_days(request,user_id):
     users = User.objects.all()
     selected = User.objects.get(pk=user_id)
@@ -142,14 +200,12 @@ def plan_days(request,user_id):
         if form.is_valid(): # All validation rules pass
 
             start_date = datetime.date(int(request.POST['first_day_year']),
-                                           int(request.POST['first_day_month']),
-                                           int(request.POST['first_day_day']))
-
+                                       int(request.POST['first_day_month']),
+                                       int(request.POST['first_day_day']))
+            
             end_date = datetime.date(int(request.POST['last_day_year']),
-                                         int(request.POST['last_day_month']),
-                                         int(request.POST['last_day_day']))
-
-            current = Calendar()
+                                     int(request.POST['last_day_month']),
+                                     int(request.POST['last_day_day']))
 
             start_month = int(request.POST['first_day_month'])
             end_month = int(request.POST['last_day_month'])
@@ -164,6 +220,7 @@ def plan_days(request,user_id):
 
             elif form.isPlanned(request.POST['status']):
                 days = []
+                current = Calendar()
                 for month in range(start_month,end_month+1):
                     for day in current.itermonthdates(int(request.POST['first_day_year']),
                                                       month):
@@ -193,6 +250,10 @@ def plan_days(request,user_id):
                                                 'selected':selected,
                                                 'user_days':user_days,
                                                 'cal':mark_safe(cal),
+                                                'days_present': user_days.filter_present().count(),
+                                                'days_sick':user_days.filter_sick().count(),
+                                                'days_planned':user_days.filter_planned().count(),
+                                                'days_accepted':user_days.filter_accepted().count(),
                                                 'form':form},
                               context_instance=RequestContext(request))
 

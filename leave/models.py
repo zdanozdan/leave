@@ -9,6 +9,7 @@ from django.db.models.signals import pre_save,post_save,pre_delete
 from django.dispatch import receiver
 import django.dispatch
 from django.core.mail import send_mass_mail
+from mleave.settings import DEBUG
 
 from django.contrib import admin
 
@@ -98,6 +99,9 @@ def days_planned_signal_handler(sender, **kwargs):
     if kwargs['operation'] == "DEL":
         op_message = "usunął"
 
+    if kwargs['operation'] == "SICK":
+        op_message = "zgłosił zwolnienie lekarskie"
+
     message ="Użytkownik '%s %s' %s dni od %s do %s" % (kwargs['user'].first_name.encode('utf-8'),
                                                         kwargs['user'].last_name.encode('utf-8'), 
                                                         op_message,
@@ -115,9 +119,15 @@ def days_planned_signal_handler(sender, **kwargs):
 
     datatuple = (
         (message, message + "\r\nOtrzymujesz tą wiadomość jako administrator. Urlop musi być zaakceptowany przez kierownika/administratora \r\n\r\nhttp://urlopy.mikran.com", 'tomasz@mikran.pl', ['tomasz@mikran.pl']),
-        #('Potwierdzenie od urlopy.mikran.com', message + "\r\nOtrzymujesz tą wiadomość jako potwierdzenie. Urlop musi być zaakceptowany przez kierownika/administratora \r\n\r\nhttp://urlopy.mikran.com", 'tomasz@mikran.pl', [kwargs['user'].email]),
+        (message, message + "\r\nOtrzymujesz tą wiadomość jako administrator. Urlop musi być zaakceptowany przez kierownika/administratora \r\n\r\nhttp://urlopy.mikran.com", 'tomasz@mikran.pl', ['pawel@mikran.pl']),
+        ('Potwierdzenie od urlopy.mikran.com', message + "\r\nOtrzymujesz tą wiadomość jako potwierdzenie. Urlop musi być zaakceptowany przez kierownika/administratora \r\n\r\nhttp://urlopy.mikran.com", 'tomasz@mikran.pl', [kwargs['user'].email]),
         )
 
+    if DEBUG:
+        datatuple = (
+            (message, message + "\r\nOtrzymujesz tą wiadomość jako administrator. Urlop musi być zaakceptowany przez kierownika/administratora \r\n\r\nhttp://urlopy.mikran.com", 'tomasz@mikran.pl', ['tomasz@mikran.pl']),
+            )
+        
     send_mass_mail(datatuple,auth_user=EMAIL_HOST_USER, auth_password=EMAIL_HOST_PASSWORD)
 
 @receiver(pre_save, sender=Day)

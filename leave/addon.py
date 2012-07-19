@@ -4,6 +4,7 @@ from calendar import HTMLCalendar, LocaleHTMLCalendar
 from datetime import date
 from itertools import groupby
 from collections import defaultdict
+import locale
 
 from django.core.urlresolvers import reverse
 
@@ -16,6 +17,9 @@ class MikranCalendar(LocaleHTMLCalendar):
     css_mikran = {"Zaplanowany":"planned", "Zaakceptowany":"accepted","Odrzucony":"rejected","Obecny":"present","Lekarskie":"sick"}
 
     def __init__(self, user_days, selected_id = None):
+
+        locale.setlocale(locale.LC_ALL, 'pl_PL.utf8')
+        logging.debug(locale.getlocale())
 
         #main view do not show "Present"
         if selected_id:
