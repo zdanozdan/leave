@@ -11,6 +11,7 @@ div.clear { clear:both}
 .rejected {background-color:red}
 .present {background-image:url(/static/check24.png); background-repeat:no-repeat}
 .sick {background-image:url(/static/sick.jpg); background-repeat:no-repeat}
+.freeday {background-image:url(/static/sun.jpg); background-repeat:no-repeat; }
 .multiple {border-bottom: 3px solid red; border-right:3px solid red}
 
 .inline {display:inline-block}
