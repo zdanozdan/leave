@@ -1,0 +1,25 @@
+{% extends "show_user.html" %}
+
+{% block content %}
+
+<form class="solid" action="{% url sick selected.id %}" method="post">{% csrf_token %}
+  <p id="header">Zwolnienie lekarskie: zaznacz początek i koniec zwolnienia</p>
+  <ul class="plainlist">
+    <li>{{ form.non_field_errors }}</li>
+    {% for field in form %}
+    <li>
+      {{ field.errors }}
+    </li>
+    <li>
+      {{ field.label_tag }}:
+    </li>
+    <li>
+      {{ field }}
+    </li>
+    {% endfor %}
+  </ul>
+  <input type="submit"/>
+</form>
+
+{% endblock %}
+
