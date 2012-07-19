@@ -258,3 +258,8 @@ def plan_days(request,user_id):
                               context_instance=RequestContext(request))
 
     
+def show_profile(request):
+    if request.user.id:
+        return HttpResponseRedirect(reverse('leave.views.show_user',args=(request.user.id,)))
+    else:
+        return HttpResponseRedirect(reverse('index'))

@@ -4,6 +4,7 @@ from django.views.generic.simple import direct_to_template
 
 urlpatterns = patterns('leave.views',
     url(r'^$','index',name='index'),
+    url(r'^accounts/profile/$', 'show_profile', name='show_profile'),
     url(r'^(?P<user_id>\d+)/pokaz/pracownika/$', 'show_user', name="show_user"),
     url(r'^(?P<user_id>\d+)/planuj/urlop/$', 'plan_days', name="plan_days"),
     url(r'^(?P<user_id>\d+)/zlgos/obecnosc/$', 'present', name="present"),
