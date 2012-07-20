@@ -1,0 +1,12 @@
+{% extends "show_user.html" %}
+
+{% block content %}
+
+<form class="solid" action="{% url present selected.id %}" method="post">{% csrf_token %}
+  <p id="header">Zgłaszanie obecności: zaznacz początek i koniec</p>
+  {% include "_form.html" %}
+  <input type="submit"/>
+</form>
+
+{% endblock %}
+

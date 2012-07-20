@@ -4,20 +4,7 @@
 
 <form class="solid" action="{% url plan_days selected.id %}" method="post">{% csrf_token %}
   <p id="header">Planowanie dni wolnych: zaznacz początek i koniec urlopu</p>
-  <ul class="plainlist">
-    <li>{{ form.non_field_errors }}</li>
-    {% for field in form %}
-    <li>
-      {{ field.errors }}
-    </li>
-    <li>
-      {{ field.label_tag }}:
-    </li>
-    <li>
-      {{ field }}
-    </li>
-    {% endfor %}
-  </ul>
+  {% include "_form.html" %}
   <input type="submit"/>
 </form>
 

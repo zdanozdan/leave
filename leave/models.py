@@ -102,6 +102,9 @@ def days_planned_signal_handler(sender, **kwargs):
     if kwargs['operation'] == "SICK":
         op_message = "zgłosił zwolnienie lekarskie"
 
+    if kwargs['operation'] == "PRESENT":
+        op_message = "zgłosił obecność "
+
     message ="Użytkownik '%s %s' %s dni od %s do %s" % (kwargs['user'].first_name.encode('utf-8'),
                                                         kwargs['user'].last_name.encode('utf-8'), 
                                                         op_message,

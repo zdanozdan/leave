@@ -3,6 +3,13 @@
 import logging
 from django.contrib import messages
 from django.shortcuts import redirect
+#from django.shortcuts import render_to_response, get_object_or_404
+#from django.http import HttpResponse, HttpResponseRedirect
+#from django.core.urlresolvers import reverse
+
+#from django.contrib.auth.forms import AuthenticationForm
+#from django.template import RequestContext
+
 
 def user_allowed(funct):
     def wrapped(request, user_id, *args, **kwargs):

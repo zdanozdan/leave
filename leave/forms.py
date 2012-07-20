@@ -86,7 +86,15 @@ class LeaveForm(forms.Form):
     def isCancelled(self,choice):
         return "CANCELLED" in choice
 
+    def isPresent(self,choice):
+        return "PRESENT" in choice
+
 class SickForm(LeaveForm):
     first_day = forms.DateField(initial=datetime.date.today,widget=SelectDateWidget(years=YEAR_CHOICES),label="Pierwszy dzień zwolnienia")
     last_day = forms.DateField(initial=datetime.date.today,widget=SelectDateWidget(years=YEAR_CHOICES), label="Ostatni dzień zwolnienia")
     status = forms.ChoiceField(widget=Select, choices=SICK_CHOICES)
+
+class MultiPresentForm(LeaveForm):
+    first_day = forms.DateField(initial=datetime.date.today,widget=SelectDateWidget(years=YEAR_CHOICES),label="Pierwszy zgłaszany dzień")
+    last_day = forms.DateField(initial=datetime.date.today,widget=SelectDateWidget(years=YEAR_CHOICES), label="Ostatni zgłaszany dzień")
+    status = forms.ChoiceField(widget=Select, choices=PRESENT_CHOICES)

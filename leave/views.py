@@ -117,16 +117,62 @@ def single_present(request,user_id,year,month,day):
                                               },
                               context_instance=RequestContext(request))
 
+@user_allowed
 @login_required
 def present(request,user_id):
-    form = PresentForm()
+    form = MultiPresentForm()
     users = User.objects.all()
     selected = User.objects.get(pk=user_id)
     user_days = Day.objects.filter_user(user_id)
 
-    cal = MikranCalendar(user_days).formatyear(2012,4)
+    cal = MikranCalendar(user_days)
 
-    return render_to_response('present.html',{'users': users,'selected':selected,'user_days':user_days,'cal':mark_safe(cal),'form':form},
+    if request.method == 'POST': # If the form has been submitted...
+        form = MultiPresentForm(dict(request.POST.items() + {'user_id':selected.id}.items())) # A form bound to the POST data
+        if form.is_valid(): # All validation rules pass
+            start_date = datetime.date(int(request.POST['first_day_year']),
+                                       int(request.POST['first_day_month']),
+                                       int(request.POST['first_day_day']))
+            
+            end_date = datetime.date(int(request.POST['last_day_year']),
+                                     int(request.POST['last_day_month']),
+                                     int(request.POST['last_day_day']))
+
+            start_month = int(request.POST['first_day_month'])
+            end_month = int(request.POST['last_day_month'])
+
+            status_obj = Status.objects.get(status=form.translateChoice(request.POST['status']));
+
+            days = []
+            current = Calendar()
+            for month in range(start_month,end_month+1):
+                for day in current.itermonthdates(int(request.POST['first_day_year']),
+                                                  month):
+                    if day >= start_date and day <= end_date:
+                        if day.isoweekday() < 6:
+                            if not day in days:
+                                if not day.strftime("%02d-%02m-%04Y") in cal.free_days_2012:
+                                    days.append(day)
+
+            #build list of objects for bulk create
+            Day.objects.bulk_create([Day(user_id=selected.id,status_id=status_obj.id,leave_date=day) for day in days])
+            #send bulk sick days create signal
+            days_planned.send(sender=User, user=selected, status=status_obj, start=start_date, end=end_date, operation="PRESENT".encode('utf-8'))
+
+            #display OK message for the user
+            messages.add_message(request,messages.INFO, 'Zgłosiłeś obecność od %s do %s' %(start_date,end_date))
+
+            return HttpResponseRedirect(reverse('leave.views.show_user',args=(selected.id,)))
+
+    return render_to_response('present_days.html',{'users': users,
+                                                   'selected':selected,
+                                                   'user_days':user_days,
+                                                   'cal':mark_safe(cal.formatyear(2012,4)),
+                                                   'days_present': user_days.filter_present().count(),
+                                                   'days_sick':user_days.filter_sick().count(),
+                                                   'days_planned':user_days.filter_planned().count(),
+                                                   'days_accepted':user_days.filter_accepted().count(),
+                                                   'form':form},
                               context_instance=RequestContext(request))
 
 @login_required
