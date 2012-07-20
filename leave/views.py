@@ -240,7 +240,7 @@ def plan_days(request,user_id):
     users = User.objects.all()
     selected = User.objects.get(pk=user_id)
     user_days = Day.objects.filter_user(user_id)
-    cal = MikranCalendar(user_days).formatyear(2012,4)
+    cal = MikranCalendar(user_days)
 
     if request.method == 'POST': # If the form has been submitted...
         form = LeaveForm(dict(request.POST.items() + {'user_id':selected.id}.items())) # A form bound to the POST data
@@ -297,7 +297,7 @@ def plan_days(request,user_id):
     return render_to_response('plan_days.html',{'users': users,
                                                 'selected':selected,
                                                 'user_days':user_days,
-                                                'cal':mark_safe(cal),
+                                                'cal':mark_safe(cal.formatyear(2012,4)),
                                                 'days_present': user_days.filter_present().count(),
                                                 'days_sick':user_days.filter_sick().count(),
                                                 'days_planned':user_days.filter_planned().count(),
