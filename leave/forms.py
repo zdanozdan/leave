@@ -42,6 +42,10 @@ class LeaveForm(forms.Form):
     status = forms.ChoiceField(widget=Select, choices=STATUS_CHOICES)
     message = forms.CharField(widget=forms.Textarea, required=False,label="Wiadomość")
 
+    def __init__(self, user=None, *args, **kwargs):
+        super(LeaveForm, self).__init__(*args, **kwargs)
+        self._user = user
+
     def clean(self):
         cleaned_data = super(LeaveForm, self).clean()
 
@@ -58,8 +62,7 @@ class LeaveForm(forms.Form):
                 raise forms.ValidationError("W tym terminie juz zaplanowales jakieś dni !")
 
         if self.isAccepted(status):
-            u = User.objects.get(id=self.data['user_id'])
-            if u.is_superuser == False:
+            if self._user.is_superuser == False:
                 raise forms.ValidationError("Sorry ale tylko chief może zaakceptować Twój urlop. Kup piwo i spróbuj ponownie.")
 
         # Always return the full collection of cleaned data.

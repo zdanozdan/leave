@@ -128,7 +128,7 @@ def present(request,user_id):
     cal = MikranCalendar(user_days)
 
     if request.method == 'POST': # If the form has been submitted...
-        form = MultiPresentForm(dict(request.POST.items() + {'user_id':selected.id}.items())) # A form bound to the POST data
+        form = MultiPresentForm(user=request.user, data=dict(request.POST.items() + {'user_id':selected.id}.items())) # A form bound to the POST data
         if form.is_valid(): # All validation rules pass
             start_date = datetime.date(int(request.POST['first_day_year']),
                                        int(request.POST['first_day_month']),
@@ -184,7 +184,7 @@ def sick(request,user_id):
     cal = MikranCalendar(user_days)
 
     if request.method == 'POST': # If the form has been submitted...
-        form = SickForm(dict(request.POST.items() + {'user_id':selected.id}.items())) # A form bound to the POST data
+        form = SickForm(user=request.user, data=dict(request.POST.items() + {'user_id':selected.id}.items())) # A form bound to the POST data
         if form.is_valid(): # All validation rules pass
             start_date = datetime.date(int(request.POST['first_day_year']),
                                        int(request.POST['first_day_month']),
@@ -243,7 +243,7 @@ def plan_days(request,user_id):
     cal = MikranCalendar(user_days)
 
     if request.method == 'POST': # If the form has been submitted...
-        form = LeaveForm(dict(request.POST.items() + {'user_id':selected.id}.items())) # A form bound to the POST data
+        form = LeaveForm(user=request.user, data=dict(request.POST.items() + {'user_id':selected.id}.items())) # A form bound to the POST data
         if form.is_valid(): # All validation rules pass
 
             start_date = datetime.date(int(request.POST['first_day_year']),
