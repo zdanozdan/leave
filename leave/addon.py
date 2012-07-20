@@ -15,11 +15,38 @@ import logging
 class MikranCalendar(LocaleHTMLCalendar):
 
     css_mikran = {"Zaplanowany":"planned", "Zaakceptowany":"accepted","Odrzucony":"rejected","Obecny":"present","Lekarskie":"sick"}
+    free_days_2012 = {
+        #1 stycznia 2012	niedziela	Nowy Rok
+        "01-01-2012":"Nowy Rok",        
+        #6 stycznia 2012	piątek	Święto Trzech Króli
+        "06-01-2012":"Święto Trzech Króli",
+        #8 kwietnia 2012	niedziela	Wielkanoc – 1 dzień świąt Wielkanocnych
+        "08-04-2012":"Wielkanoc – 1 dzień świąt Wielkanocnych",
+        #9 kwietnia 2012	poniedziałek	Lany Poniedziałek – 2 dzień świąt Wielkanocnych
+        "09-04-2012":"Lany Poniedziałek – 2 dzień świąt Wielkanocnych",
+        #1 maja 2012	wtorek	1 Maja – Święto Pracy
+        "01-05-2012":"1 Maja – Święto Pracy",
+        #3 maja 2012	czwartek	Święto Konstytucji 3 Maja
+        "03-05-2012":"Święto Konstytucji 3 Maja",
+        #27 maja 2012	niedziela	Zesłanie Ducha Świętego
+        "27-05-2012":"Zesłanie Ducha Świętego",
+        #7 czerwca 2012	czwartek	Boże Ciało
+        "07-06-2012":"Boże Ciało",
+        #15 sierpnia 2012	środa	Wniebowzięcie NMP
+        "15-08-2012":"Wniebowzięcie NMP",
+        #1 listopada 2012	czwartek	Dzień Wszystkich Świętych
+        "01-11-2012":"Dzień Wszystkich Świętych",
+        #11 listopada 2012	niedziela	Narodowe Święto Niepodległości
+        "11-11-2012":"Narodowe Święto Niepodległości",
+        #25 grudnia 2012	wtorek	Boże Narodzenie – pierwszy dzień świąt
+        "25-12-2012":"Boże Narodzenie – pierwszy dzień świąt",
+        #26 grudnia 2012	środa	Boże Narodzenie – drugi dzień świąt
+        "26-12-2012":"Boże Narodzenie – drugi dzień świąt"
+        }
 
     def __init__(self, user_days, selected_id = None):
 
         locale.setlocale(locale.LC_ALL, 'pl_PL.utf8')
-        logging.debug(locale.getlocale())
 
         #main view do not show "Present"
         if selected_id:
@@ -47,6 +74,8 @@ class MikranCalendar(LocaleHTMLCalendar):
             """
             if day == 0:
                 return '<td class="noday">&nbsp;</td>' # day outside month
+            elif k in self.free_days_2012:
+                return '<td title="%s" class="freeday">%d</td>' % (self.free_days_2012[k],day)
             else:
                 css_multiple = "single"
                 if len(self.group_users_by_day[k]) > 1: css_multiple = "multiple"
@@ -62,6 +91,8 @@ class MikranCalendar(LocaleHTMLCalendar):
         else:  
             if day == 0:
                 return '<td class="noday">&nbsp;</td>' # day outside month
+            elif k in self.free_days_2012:
+                return '<td title="%s" class="freeday">%d</td>' % (self.free_days_2012[k],day)
             else:                
                 return '<td title="pokaż obecność" class="%s"><a href="%s">%d</a></td>' % (self.cssclasses[weekday],url,day)
 

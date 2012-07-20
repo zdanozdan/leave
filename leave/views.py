@@ -32,9 +32,9 @@ from functools import wraps
 def index(request):
     users = User.objects.all()
     user_days = Day.objects.select_related()
-    cal = MikranCalendar(user_days).formatyear(2012,4)
+    cal = MikranCalendar(user_days)
 
-    return render_to_response('index.html',{'users': users,'user_days':user_days,'cal':mark_safe(cal)},
+    return render_to_response('index.html',{'users': users,'user_days':user_days,'cal':mark_safe(cal.formatyear(2012,4))},
                               context_instance=RequestContext(request))
 
 @login_required
@@ -135,7 +135,7 @@ def sick(request,user_id):
     users = User.objects.all()
     selected = User.objects.get(pk=user_id)
     user_days = Day.objects.filter_user(user_id)
-    cal = MikranCalendar(user_days).formatyear(2012,4)
+    cal = MikranCalendar(user_days)
 
     if request.method == 'POST': # If the form has been submitted...
         form = SickForm(dict(request.POST.items() + {'user_id':selected.id}.items())) # A form bound to the POST data
@@ -161,7 +161,8 @@ def sick(request,user_id):
                     if day >= start_date and day <= end_date:
                         if day.isoweekday() < 6:
                             if not day in days:
-                                days.append(day)
+                                if not day.strftime("%02d-%02m-%04Y") in cal.free_days_2012:
+                                    days.append(day)
 
             #build list of objects for bulk create
             Day.objects.bulk_create([Day(user_id=selected.id,status_id=status_obj.id,leave_date=day) for day in days])
@@ -178,7 +179,7 @@ def sick(request,user_id):
     return render_to_response('sick_days.html',{'users': users,
                                                 'selected':selected,
                                                 'user_days':user_days,
-                                                'cal':mark_safe(cal),
+                                                'cal':mark_safe(cal.formatyear(2012,4)),
                                                 'days_present': user_days.filter_present().count(),
                                                 'days_sick':user_days.filter_sick().count(),
                                                 'days_planned':user_days.filter_planned().count(),
@@ -227,7 +228,8 @@ def plan_days(request,user_id):
                         if day >= start_date and day <= end_date:
                             if day.isoweekday() < 6:
                                 if not day in days:
-                                    days.append(day)
+                                    if not day.strftime("%02d-%02m-%04Y") in cal.free_days_2012:
+                                        days.append(day)
 
                 #build list of objects for bulk create
                 Day.objects.bulk_create([Day(user_id=selected.id,status_id=status_obj.id,leave_date=day) for day in days])
