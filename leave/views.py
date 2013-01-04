@@ -32,16 +32,34 @@ from functools import wraps
 def index(request):
     users = User.objects.all()
     user_days = Day.objects.select_related()
-    cal = MikranCalendar(user_days)
+    year_form = YearChangeForm({'year':request.session.get('year',2013)})
+    year = int(request.session.get('year',2013))
+    cal = MikranCalendar(user_days,year)
 
-    return render_to_response('index.html',{'users': users,'user_days':user_days,'cal':mark_safe(cal.formatyear(2012,4))},
+    if request.method == 'POST': # If the form has been submitted...
+        form = YearChangeForm(request.POST) # A form bound to the POST data
+        if form.is_valid():
+            request.session['year'] = request.POST['year']
+            messages.add_message(request,messages.INFO, 'Rok został zmieniony')
+            return HttpResponseRedirect(reverse('leave.views.index'))
+        else:
+            messages.add_message(request,messages.ERROR, 'Nie udało się zmienić roku. Co za bajzel.')
+
+    return render_to_response('index.html',
+                              {'users': users,
+                               'user_days':user_days,
+                               'year_form':year_form,
+                               'cal':mark_safe(cal.formatyear(year,4))
+                               },
                               context_instance=RequestContext(request))
 
 @login_required
 def show_user(request,user_id):
     selected = User.objects.get(pk=user_id)
     user_days = Day.objects.filter_user(user_id)
-    cal = MikranCalendar(user_days,selected.id)
+    year_form = YearChangeForm({'year':request.session.get('year',2013)})
+    year = int(request.session.get('year',2013))
+    cal = MikranCalendar(user_days,year,selected.id)
 
     return render_to_response('show_user.html',{'days_present': user_days.filter_present().count(),
                                                 'days_sick':user_days.filter_sick().count(),
@@ -49,7 +67,8 @@ def show_user(request,user_id):
                                                 'days_accepted':user_days.filter_accepted().count(),
                                                 'selected':selected,
                                                 'user_days':user_days,
-                                                'cal':mark_safe(cal.formatyear(2012,4))
+                                                'cal':mark_safe(cal.formatyear(year,4)),
+                                                'year_form':year_form,
                                                 },
                               context_instance=RequestContext(request))
 
@@ -57,13 +76,17 @@ def show_user(request,user_id):
 def show_present(request,year,month,day):
     users = User.objects.all()
     user_days = Day.objects.select_related()
-    cal = MikranCalendar(user_days)
 
     url_day = datetime.date(int(year),int(month),int(day))
     present_days = Day.objects.select_related().filter(leave_date = url_day)
 
+    year_form = YearChangeForm({'year':request.session.get('year',2013)})
+    year = int(request.session.get('year',2013))
+    cal = MikranCalendar(user_days,year)
+
     return render_to_response('show_present.html',{'users': users,
-                                                   'cal':mark_safe(cal.formatyear(2012,4)),
+                                                   'cal':mark_safe(cal.formatyear(year,4)),
+                                                   'year_form':year_form,
                                                    'year':year, 
                                                    'month':month, 
                                                    'day':day, 
@@ -81,6 +104,9 @@ def single_present(request,user_id,year,month,day):
     url_day = datetime.date(int(year),int(month),int(day))
     present_days = Day.objects.select_related().filter(leave_date = url_day)
 
+    year_form = YearChangeForm({'year':request.session.get('year',2013)})
+    year = int(request.session.get('year',2013))
+
     #check if logged useed already used that day, if no form will appear, otherwise warning will be shown
     user_day = user_days.filter(leave_date = url_day)
     if user_day:
@@ -88,7 +114,7 @@ def single_present(request,user_id,year,month,day):
 
     form = SinglePresentForm(instance=Day(user_id=selected.id,status_id=Status.objects.get(status="Obecny").id,leave_date=url_day))
 
-    cal = MikranCalendar(user_days,selected.id)
+    cal = MikranCalendar(user_days,year,selected.id)
 
     if request.method == 'POST': # If the form has been submitted...
         form = SinglePresentForm(request.POST, instance=Day(user_id=selected.id,status_id=Status.objects.get(status="Obecny").id,leave_date=url_day))
@@ -108,7 +134,8 @@ def single_present(request,user_id,year,month,day):
                                               'days_planned':user_days.filter_planned().count(),
                                               'days_accepted':user_days.filter_accepted().count(),
                                               'selected':selected,
-                                              'cal':mark_safe(cal.formatyear(2012,4)),
+                                              'cal':mark_safe(cal.formatyear(year,4)),
+                                              'year_form':year_form,
                                               'form':form, 
                                               'year':year, 
                                               'month':month, 
@@ -125,7 +152,10 @@ def present(request,user_id):
     selected = User.objects.get(pk=user_id)
     user_days = Day.objects.filter_user(user_id)
 
-    cal = MikranCalendar(user_days)
+    year_form = YearChangeForm({'year':request.session.get('year',2013)})
+    year = int(request.session.get('year',2013))
+
+    cal = MikranCalendar(user_days,year)
 
     if request.method == 'POST': # If the form has been submitted...
         form = MultiPresentForm(user=request.user, data=dict(request.POST.items() + {'user_id':selected.id}.items())) # A form bound to the POST data
@@ -146,12 +176,11 @@ def present(request,user_id):
             days = []
             current = Calendar()
             for month in range(start_month,end_month+1):
-                for day in current.itermonthdates(int(request.POST['first_day_year']),
-                                                  month):
+                for day in current.itermonthdates(int(request.POST['first_day_year']),month):
                     if day >= start_date and day <= end_date:
                         if day.isoweekday() < 6:
                             if not day in days:
-                                if not day.strftime("%02d-%02m-%04Y") in cal.free_days_2012:
+                                if not day.strftime("%02d-%02m-%04Y") in cal.get_free_days(year):
                                     days.append(day)
 
             #build list of objects for bulk create
@@ -167,7 +196,8 @@ def present(request,user_id):
     return render_to_response('present_days.html',{'users': users,
                                                    'selected':selected,
                                                    'user_days':user_days,
-                                                   'cal':mark_safe(cal.formatyear(2012,4)),
+                                                   'cal':mark_safe(cal.formatyear(year,4)),
+                                                   'year_form':year_form,
                                                    'days_present': user_days.filter_present().count(),
                                                    'days_sick':user_days.filter_sick().count(),
                                                    'days_planned':user_days.filter_planned().count(),
@@ -181,7 +211,11 @@ def sick(request,user_id):
     users = User.objects.all()
     selected = User.objects.get(pk=user_id)
     user_days = Day.objects.filter_user(user_id)
-    cal = MikranCalendar(user_days)
+
+    year_form = YearChangeForm({'year':request.session.get('year',2013)})
+    year = int(request.session.get('year',2013))
+
+    cal = MikranCalendar(user_days,year)
 
     if request.method == 'POST': # If the form has been submitted...
         form = SickForm(user=request.user, data=dict(request.POST.items() + {'user_id':selected.id}.items())) # A form bound to the POST data
@@ -202,12 +236,11 @@ def sick(request,user_id):
             days = []
             current = Calendar()
             for month in range(start_month,end_month+1):
-                for day in current.itermonthdates(int(request.POST['first_day_year']),
-                                                  month):
+                for day in current.itermonthdates(int(request.POST['first_day_year']),month):
                     if day >= start_date and day <= end_date:
                         if day.isoweekday() < 6:
                             if not day in days:
-                                if not day.strftime("%02d-%02m-%04Y") in cal.free_days_2012:
+                                if not day.strftime("%02d-%02m-%04Y") in cal.get_free_days(year):
                                     days.append(day)
 
             #build list of objects for bulk create
@@ -225,7 +258,8 @@ def sick(request,user_id):
     return render_to_response('sick_days.html',{'users': users,
                                                 'selected':selected,
                                                 'user_days':user_days,
-                                                'cal':mark_safe(cal.formatyear(2012,4)),
+                                                'cal':mark_safe(cal.formatyear(year,4)),
+                                                'year_form':year_form,
                                                 'days_present': user_days.filter_present().count(),
                                                 'days_sick':user_days.filter_sick().count(),
                                                 'days_planned':user_days.filter_planned().count(),
@@ -240,7 +274,11 @@ def plan_days(request,user_id):
     users = User.objects.all()
     selected = User.objects.get(pk=user_id)
     user_days = Day.objects.filter_user(user_id)
-    cal = MikranCalendar(user_days)
+
+    year_form = YearChangeForm({'year':request.session.get('year',2013)})
+    year = int(request.session.get('year',2013))
+
+    cal = MikranCalendar(user_days,year)
 
     if request.method == 'POST': # If the form has been submitted...
         form = LeaveForm(user=request.user, data=dict(request.POST.items() + {'user_id':selected.id}.items())) # A form bound to the POST data
@@ -269,12 +307,11 @@ def plan_days(request,user_id):
                 days = []
                 current = Calendar()
                 for month in range(start_month,end_month+1):
-                    for day in current.itermonthdates(int(request.POST['first_day_year']),
-                                                      month):
+                    for day in current.itermonthdates(int(request.POST['first_day_year']),month):
                         if day >= start_date and day <= end_date:
                             if day.isoweekday() < 6:
                                 if not day in days:
-                                    if not day.strftime("%02d-%02m-%04Y") in cal.free_days_2012:
+                                    if not day.strftime("%02d-%02m-%04Y") in cal.get_free_days(year):
                                         days.append(day)
 
                 #build list of objects for bulk create
@@ -297,7 +334,8 @@ def plan_days(request,user_id):
     return render_to_response('plan_days.html',{'users': users,
                                                 'selected':selected,
                                                 'user_days':user_days,
-                                                'cal':mark_safe(cal.formatyear(2012,4)),
+                                                'cal':mark_safe(cal.formatyear(year,4)),
+                                                'year_form':year_form,
                                                 'days_present': user_days.filter_present().count(),
                                                 'days_sick':user_days.filter_sick().count(),
                                                 'days_planned':user_days.filter_planned().count(),

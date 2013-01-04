@@ -6,7 +6,7 @@
     <link rel="stylesheet" href="{%static "jquery-1.7.2.min.js" %}" />
     <link rel="stylesheet" href="{%static "admin/css/base.css" %}" />
     <link rel="stylesheet" href="{%static "admin/css/forms.css" %}" />
-    <link rel="stylesheet" href="{%static "style.css" %}" />
+    <link rel="stylesheet" href="{%static "urlopy.css" %}" />
 
     <title>{% block title %}System urlopowy mikran{% endblock %}</title>
 </head>
@@ -60,7 +60,15 @@
 	{% endfor %}
       </ul>
       {% endif %}
-        {% block content %}{% endblock %}{% block calendar %}{% endblock %}
+      {% block content %}{% endblock %}
+      <div>
+	<form method="post">
+	  {% csrf_token %}
+	  {{year_form}}
+	  <input type="submit" action="{%url index %}" value="Zmień"></input>
+	</form>
+      </div>
+      {% block calendar %}{% endblock %}
     </div>
     <div id="bottom" style="clear:both .b-top-light">
         {% block bottom %}{% endblock %}

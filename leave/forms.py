@@ -17,12 +17,15 @@ PRESENT_CHOICES = (('PRESENT', 'Obecny'),
                    ('SICK', 'Lekarskie'),
                    )
 
-YEAR_CHOICES = ('2012', '2013')
+YEAR_CHOICES = ('2012','2013','2014')
+YEAR_SELECT = (('2012','2012'),('2013','2013'),('2014','2014'))
 STATUS_CHOICES = (('PLANNED', 'Zaplanowany'),
                   ('ACCEPTED', 'Zaakceptowany'),
                   ('REJECTED', 'Odrzucony'),
                   ('CANCELLED', 'Rezygnuje z urlopu w tym terminie'))
 
+class YearChangeForm(forms.Form):
+    year = forms.ChoiceField(initial=2013, widget=Select,choices=YEAR_SELECT,label="Bieżący rok")
 
 class SinglePresentForm(ModelForm):
     leave_date = forms.DateField(widget=SelectDateWidget(years=YEAR_CHOICES),label='Zgłaszam obecność w dniu')
